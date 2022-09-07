@@ -244,7 +244,6 @@ export default function Accounts() {
       <h3 className="text-gray-400 mb-5">
         This portal displays all current Vallna Member Accounts
       </h3>
-      
       <SearchBar search={search} searchItem={searchItem} />
       <Table
         rowClassName={'bg-bar-bg text-white bg-card-bg'}
