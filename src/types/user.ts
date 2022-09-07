@@ -22,7 +22,8 @@ export interface IUserInfo {
   memberuserid?: string;
   raddress?: string;
   game?: number;
-  regit_time: string;
+  regit_time?: string;
+  language?:ILanguage[]
 }
 export const userGroupsData = [
   { value: '1', label: 'Scholar' },
@@ -42,4 +43,9 @@ export const searchStatusData= [
     {
         value:'2',label:'unlinked'
     }
+]
+export const permissionsData = [
+  {value:1,label:'Member'},
+  {value:2,label:'Scholar'},
+  {value:3,label:''},
 ]

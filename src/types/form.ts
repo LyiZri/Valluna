@@ -14,6 +14,7 @@ export interface IFormItem{
     render?:React.ReactNode
     col?:number
     icon?:string
+    disabled?:boolean
 }
 export interface ISelectOption{
     value:string|number,

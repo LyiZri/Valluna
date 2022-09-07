@@ -92,7 +92,7 @@ export default function Accounts() {
       col: 3,
       render: (
         <Button
-          className=" bg-p-500  border-none rounded-lg bg-purple-button hover:bg-purple-800 hover:text-white  text-white"
+          className="  border-none rounded-lg bg-purple-button hover:bg-purple-800 hover:text-white  text-white"
           onClick={exportCsv}
         >
           export

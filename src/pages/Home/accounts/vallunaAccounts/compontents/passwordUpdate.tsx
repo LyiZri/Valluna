@@ -107,13 +107,13 @@ export default function PasswordUpdate ({modalStatus, setModalStatus}:IProps){
         <div className="w-full flex justify-between">
           <Button
             onClick={cancel}
-            className="text-white border-none bg-input-content"
+            className=" bg-gray-button px-4 hover: text-white rounded-lg hover:bg-gray-800 hover:text-white focus:bg-gray-800 focus:text-white active:bg-gray-800 active:text-white"
           >
             Cancel
           </Button>
           <Button
             loading={loading}
-            className="border-none bg-btn-bg hover:bg-purple-800 hover:text-white  text-white"
+            className="ml-4 px-4 border-none rounded-lg bg-purple-button hover:bg-purple-800 focus:bg-purple-800 focus:text-white active:bg-purple-800 active:text-white hover:text-white  text-white"
             onClick={submit}
           >
             Done

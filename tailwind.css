@@ -74,3 +74,9 @@ input:-webkit-autofill,
     .ant-table-tbody > tr.ant-table-row-selected > td{
         background-color: #000;   
     }
+    .ant-form-item-label > label{
+        color: #fff;
+    }
+    .ant-modal-content{
+        background: #191b1c;
+    }

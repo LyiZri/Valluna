@@ -78,7 +78,7 @@ export default function ContentForm({
               label={item.label}
               rules={[{ required: item.require }]}
             >
-              <Input disabled={item.disabled} value={item.value} placeholder={item.placeholder}/>
+              <Input className=" bg-input-content text-white rounded-none"  disabled={item.disabled} value={item.value} placeholder={item.placeholder}/>
             </Form.Item>
           );
         }
@@ -102,7 +102,7 @@ export default function ContentForm({
               label={item.label}
               rules={[{ required: item.require }]}
             >
-              <Input.Password className="border-none bg-input-content text-white" disabled={item.disabled} value={item.value}></Input.Password>
+              <Input.Password className="border-none mb-4 bg-input-content text-white" disabled={item.disabled} value={item.value}></Input.Password>
             </Form.Item>
           );
         }
