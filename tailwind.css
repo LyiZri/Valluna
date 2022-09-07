@@ -1,0 +1,76 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+.ant-input,.ant-input-affix-wrapper,.ant-btn{
+    border:none
+}
+.ant-btn,.ant-input:focus, .ant-input-focused,.ant-input-affix-wrapper:focus, .ant-input-affix-wrapper-focused{
+    border-color: none;
+    box-shadow: none;
+    border-right-width: 0;
+}
+.ant-input-affix-wrapper > input.ant-input{
+    color: #fff;
+    background: #3B3B3D;
+}
+.bg-primary-button:hover,.bg-primary-button:focus,.bg-primary-button:active{
+    color: #fff;
+    border-color: none;
+    background: #40a9ff;
+    background-color: #40a9ff;
+}
+input:-webkit-autofill,
+    input:-webkit-autofill:hover,
+    input:-webkit-autofill:focus,
+    input:-webkit-autofill:active {
+        -webkit-transition-delay: 111111s;
+        -webkit-transition: color 11111s ease-out, background-color 111111s ease-out;
+    } 
+    .ant-divider-horizontal.ant-divider-with-text{
+        color: #D4D3D3;
+        border-top: 0px #D4D3D3;   
+    }
+    .ant-select:not(.ant-select-customize-input) .ant-select-selector{
+        background-color: #3B3B3D;
+        border: none;
+        color: white;
+    }
+    .ant-select-focused:not(.ant-select-disabled).ant-select:not(.ant-select-customize-input) .ant-select-selector{
+        border-color:#3B3B3D;
+        box-shadow: none;
+    }
+    .ant-select-dropdown{
+        background-color: #191B1C;
+        color: #fff;
+    }
+    .ant-select-item-option-selected:not(.ant-select-item-option-disabled){
+        background-color: #000;
+        color:#fff;
+    }
+    .ant-select-item-option-active:not(.ant-select-item-option-disabled) {
+        background-color: #191B1C;
+    }
+    .ant-select-item{
+        color: #fff;
+    }
+    body{
+        background: #272728;
+    }
+    .ant-table-thead > tr  :nth-child(odd){
+        background-color: #343539;
+    }
+    .ant-table-thead > tr  :nth-child(even){
+        background-color: #38393e;
+    }
+    .ant-table-thead > tr > th{
+        color: #fff;
+    }
+    .ant-table-tbody > tr > td{
+        border-bottom: 1px solid #232628;
+    }
+    .ant-table-tbody > tr.ant-table-row:hover > td, .ant-table-tbody > tr > td.ant-table-cell-row-hover{
+        background-color: #000;   
+    }
+    .ant-table-tbody > tr.ant-table-row-selected > td{
+        background-color: #000;   
+    }
