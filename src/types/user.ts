@@ -1,3 +1,4 @@
+import { ISelectOption } from '@/types/form';
 export interface IUserTag {
   value: number;
   text: string;
@@ -8,13 +9,13 @@ export interface ILanguage {
 }
 export interface IUserInfo {
   uid?: string;
-  scholarUserId?: string;
-  scholarName?: string;
+  sid?: string;
+  account_name?: string;
   username?: string;
   email?: string;
   firstname?: string;
   lastname?: string;
-  groups?: string|number;
+  groups?: string|number[];
   country?: string;
   discordid?: string;
   memberid?: string;
@@ -22,8 +23,10 @@ export interface IUserInfo {
   memberuserid?: string;
   raddress?: string;
   game?: number;
+  gameid?:number;
   regit_time?: string;
-  language?:ILanguage[]
+  permissons?:string[]
+  language?:ILanguage[] | string
 }
 export const userGroupsData = [
   { value: '1', label: 'Scholar' },
@@ -45,7 +48,10 @@ export const searchStatusData= [
     }
 ]
 export const permissionsData = [
-  {value:1,label:'Member'},
-  {value:2,label:'Scholar'},
-  {value:3,label:''},
+  {value:'1',label:'Member'},
+  {value:'2',label:'Scholar'},
+  {value:"3",label:''},
+]
+export const gameData:ISelectOption[] = [
+  {value:1,text:"Axie"}
 ]

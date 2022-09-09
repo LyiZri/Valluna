@@ -7,3 +7,9 @@ export async function getScholarsInfo(data:any) {
     data:requestDataWrap(data)
   });
 }
+export async function createScholar(data:any){
+  return request("/api/scholars/create",{
+    method:"POST",
+    data:requestDataWrap(data)
+  })
+}

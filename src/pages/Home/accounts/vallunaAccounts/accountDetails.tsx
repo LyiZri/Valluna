@@ -44,7 +44,7 @@ export default function accountDetails() {
     });
   };
   const addLanguage = () => {
-    let languageArr: ILanguage[] = accountsInfoLanguageData;
+    let languageArr: ILanguage[] = accountsInfoLanguageData == null ? [] : accountsInfoLanguageData;
     languageArr.push({
       language: '',
       proficiency: 0,
@@ -55,10 +55,11 @@ export default function accountDetails() {
     });
   };
   const onSave = async (e: IUserInfo) => {
+    console.log(accountsInfoLanguageData);
     const saveData: IUserInfo = {
       ...accountsInfoData,
       ...e,
-      language: accountsInfoLanguageData,
+      language: JSON.stringify(accountsInfoLanguageData),
     };
     setLoading(true);
     try {
@@ -146,12 +147,12 @@ export default function accountDetails() {
       type: 'button',
       render: (
         <div>
-          <LanguageAdd />
+          <LanguageAdd isDisabled={isDisabled}/>
           <Button
-            className=" border-none rounded-lg text-white bg-purple-button hover:bg-purple-800 hover:text-white"
+            className={`border-none rounded-lg text-white bg-purple-button hover:bg-purple-800 hover:text-white ${isDisabled?'hidden':''}`}
             onClick={addLanguage}
           >
-            add+
+            +Add
           </Button>
         </div>
       ),

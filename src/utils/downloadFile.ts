@@ -1,4 +1,9 @@
 import { message } from 'antd';
+import { render } from 'react-dom';
+import { useModel } from '@umijs/max';
+import uploadFileValue from '@/models/uploadFileValue'
+
+
 var JSonToCSV = {
   /*
      * obj是一个对象，其中包含有：
@@ -233,8 +238,10 @@ function csvToObject(csvString: any) {
     for (var j = 0; j < temp.length; j++) {
       data[headers[j]] = temp[j];
     }
+    console.log(data);
     datas.push(data);
   }
+  console.log(datas);
   return datas;
 }
 
@@ -244,11 +251,14 @@ export function readCSVFile(obj: any) {
     return
   }
   var reader = new FileReader();
-
-  reader.readAsText(obj[0]);
-  reader.onload = function () {
-    console.log(this);
-    var data = csvToObject(this.result);
-    return data;
+  var data:any[] = []
+  reader.readAsText(obj);
+  reader.onload =  function () {
   };
+  data = csvToObject(reader.result);
+  return data
+  
+  reader.onloadend = () =>{
+    
+  }
 }

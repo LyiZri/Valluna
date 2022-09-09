@@ -1,33 +1,18 @@
-import React, { useState } from "react";
-import ContentCard from "@/compontents/Layout/ContentCard";
-import { Col, Form, Modal, Space, Table, Tag } from "antd";
-import { ColumnsType } from "antd/lib/table";
-import { timestampToTime } from "@/utils/format";
-import { Button } from "antd";
-import { downloadCsv } from "@/utils/downloadFile";
-import SearchBar from './compontents/searchBar'
-import index from "../../scholars/index";
-import { history, Outlet } from "umi";
-import HeaderBar from './compontents/headerBar'
-import {
-  DeleteOutlined,
-  EditOutlined,
-  UserAddOutlined,
-} from "@ant-design/icons";
+import ContentCard from '@/compontents/Layout/ContentCard';
+import IconFont from '@/compontents/Layout/IconFont';
+import { itemRender } from '@/compontents/Layout/PageContaineriTemRender';
+import SearchBar from '@/compontents/Layout/SearchBar';
+import { getScholarsInfo } from '@/services/scholars';
+import { IFormItem } from '@/types/form';
+import { IUserInfo } from '@/types/user';
+import { downloadCsv } from '@/utils/downloadFile';
+import { timestampToTime } from '@/utils/format';
+import { Button, Modal, Table, Tag } from 'antd';
+import { ColumnsType } from 'antd/lib/table';
+import React, { useEffect, useState } from 'react';
+import HeaderBar from './compontents/headerBar';
 
-interface DataType {
-  scholarId: string;
-  scholarName: string;
-  email: string;
-  game: string;
-  firstName: string;
-  lastName: string;
-  tags: number[];
-  country: string;
-  memberUserId: string;
-  creationDate: string;
-  status: boolean;
-}
+interface DataType extends IUserInfo {}
 interface nextStep {
   confirm: Function;
 }
@@ -42,7 +27,7 @@ export default function Accounts() {
   //控制model的开关
   const [modalStatus, setModalStatus] = useState<ImodalStatus>({
     status: false,
-    title: "",
+    title: '',
     render: <></>,
     nextStep: {
       confirm: () => {},
@@ -52,139 +37,272 @@ export default function Accounts() {
   const [modalValue, setModalValue] = useState<DataType>();
   // model的步骤
   const [stepNum, setStepNum] = useState(1);
+  const [pageData, setPageData] = useState({
+    size: 10,
+    amount: 10,
+  });
+  let pageNum = 1;
+  const [list, setList] = useState<IUserInfo[]>([]);
+  useEffect(() => {
+    (async () => {
+      await getList();
+    })();
+  }, []);
+  const getList = async () => {
+    try {
+      const data = await getScholarsInfo({ ...pageData, page: pageNum });
+      if (data.code == 1) {
+        setList(data.data.list);
+      }
+    } catch (error) {}
+  };
+  const exportCsv = () => {
+    let titleArr: any[] = [];
+    let keyArr: any[] = [];
+    colums.map((item) => {
+      if (item.title != 'Action') {
+        titleArr.push(item.title);
+        keyArr.push(item.key);
+      }
+    });
+    downloadCsv(list, titleArr, keyArr);
+  };
   const colums: ColumnsType<DataType> = [
     {
-      title: "Scholar ID",
-      dataIndex: "scholarId",
-      key: "scholarId",
+      title: 'Scholar ID',
+      dataIndex: 'sid',
+      key: 'sid',
     },
     {
-      title: "Scholar Name",
-      dataIndex: "scholarName",
-      key: "scholarName",
+      title: 'Scholar Name',
+      dataIndex: 'account_name',
+      key: 'account_name',
     },
     {
-      title: "Wallet",
-      dataIndex: "wallet",
-      key: "wallet",
+      title: 'Wallet',
+      dataIndex: 'raddress',
+      key: 'raddress',
     },
     {
-      title: "Email",
-      dataIndex: "email",
-      key: "email",
+      title: 'Email',
+      dataIndex: 'email',
+      key: 'email',
     },
     {
-      title: "Game",
-      dataIndex: "game",
-      key: "game",
-      render: (_, { game }) => {
-        return <Tag>{game}</Tag>;
+      title: 'Game',
+      dataIndex: 'gameid',
+      key: 'gameid',
+      render: (_, { gameid }) => {
+        return <Tag>{gameid}</Tag>;
       },
     },
     {
-      title: "Creation Date",
-      dataIndex: "creationDate",
-      key: "creationDate",
-      render: (_, { creationDate }) => {
-        return <p>{timestampToTime(creationDate)}</p>;
+      title: 'Creation Date',
+      dataIndex: 'regit_time',
+      key: 'regit_time',
+      render: (_, { regit_time }) => {
+        return typeof regit_time == 'number' ? (
+          <p>{timestampToTime(regit_time)}</p>
+        ) : (
+          <p>-</p>
+        );
       },
     },
     {
-      title: "Status",
-      dataIndex: "status",
-      key: "status",
-      render: (_, { status }) => {
-        if (status) {
-          return <Tag color={"cyan"}>Linked</Tag>;
+      title: 'Status',
+      dataIndex: 'memberid',
+      key: 'memberid',
+      render: (_, { memberid }) => {
+        if (memberid) {
+          return <Tag color={'cyan'}>Linked</Tag>;
         } else {
           return <Tag>Unlinked</Tag>;
         }
       },
     },
     {
-      title: "Tag",
-      dataIndex: "tags",
-      key: "tags",
-      render: (_, { tags }) => {
+      title: 'Tag',
+      dataIndex: 'groups',
+      key: 'groups',
+      render: (_, { groups }) => {
         return (
           <>
-            {tags.map((tag: number, index: number) => {
-              if (tag == 1) {
-                return (
-                  <Tag color={"cyan"} key={index}>
-                    {tag}
-                  </Tag>
-                );
-              } else if (tag == 2) {
-                return (
-                  <Tag color={"blue"} key={index}>
-                    {tag}
-                  </Tag>
-                );
-              } else {
-                return (
-                  <Tag color={"default"} key={index}>
-                    {tag}.other
-                  </Tag>
-                );
-              }
-            })}
+            {typeof groups == 'string' || groups == undefined ? (
+              <Tag>-</Tag>
+            ) : (
+              groups.map((tag: number, index: number) => {
+                if (tag == 1) {
+                  return (
+                    <Tag color={'cyan'} key={index}>
+                      {tag}
+                    </Tag>
+                  );
+                } else if (tag == 2) {
+                  return (
+                    <Tag color={'blue'} key={index}>
+                      {tag}
+                    </Tag>
+                  );
+                } else {
+                  return (
+                    <Tag color={'default'} key={index}>
+                      {tag}.other
+                    </Tag>
+                  );
+                }
+              })
+            )}
           </>
         );
       },
     },
     {
-      title: "Member User ID",
-      dataIndex: "memberUserId",
-      key: "memberUserId",
+      title: 'Member User ID',
+      dataIndex: 'memberid',
+      key: 'memberid',
     },
 
     {
-      title: "Action",
-      key: "action",
-      fixed: "right",
+      title: 'Action',
+      key: 'action',
+      fixed: 'right',
       width: 150,
       render: (_, record) => {
         return (
-          <Space>
-            <Button onClick={() => {}} icon={<EditOutlined />}></Button>
-            <Button onClick={()=>{
-              linkedStatusChange(record)
-            }} icon={<UserAddOutlined />} />
+          <>
+            <Button type="link" className="p-1" onClick={() => {}}>
+              <IconFont type="icon-bianji" className="text-2xl"></IconFont>
+            </Button>
             <Button
-              icon={<DeleteOutlined />}
+              className="p-1"
+              type="link"
+              onClick={() => {
+                linkedStatusChange(record);
+              }}
+            >
+              {record.memberid == '' ? (
+                <IconFont
+                  type="icon-jianshaoyonghu"
+                  className="text-2xl"
+                ></IconFont>
+              ) : (
+                <IconFont
+                  type="icon-tianjiayonghu"
+                  className="text-2xl"
+                ></IconFont>
+              )}
+            </Button>
+            <Button
+              className="p-1"
+              type="link"
               onClick={() => {
                 deleteItem(record);
               }}
-            />
-          </Space>
+            >
+              <IconFont type="icon-shanchu" className="text-2xl"></IconFont>
+            </Button>
+          </>
         );
       },
+    },
+  ];
+  const searchItem: IFormItem[] = [
+    {
+      name: 'sid',
+      type: 'input',
+      col: 2,
+      placeholder: 'Scholar ID',
+    },
+    {
+      name: 'account_name',
+      type: 'input',
+      col: 2,
+      placeholder: 'Scholar Account Name',
+    },
+    {
+      name: 'raddress',
+      type: 'input',
+      col: 2,
+      placeholder: 'Wallet',
+    },
+    {
+      name: 'email',
+      type: 'input',
+      col: 2,
+      placeholder: 'Email',
+    },
+    {
+      name: 'status',
+      type: 'status-groups',
+      col: 3,
+      placeholder: 'Status',
+    },
+    {
+      name: 'groups',
+      type: 'groups-select',
+      col: 3,
+      placeholder: 'Groups',
+    },
+    {
+      name: 'memberid',
+      type: 'input',
+      col: 2,
+      placeholder: 'Member User ID',
+    },
+    {
+      name: '',
+      type: 'link-reset',
+      col: 1,
+      icon: 'icon-shuaxin',
+    },
+    {
+      name: '',
+      type: 'link-submit',
+      col: 1,
+      icon: 'icon-chazhao',
+    },
+    {
+      name: 'col',
+      type: 'col',
+      col: 3,
+    },
+    {
+      name: '',
+      type: '',
+      col: 3,
+      render: (
+        <Button
+          className="  border-none rounded-lg bg-purple-button hover:bg-purple-800 hover:text-white  text-white"
+          onClick={exportCsv}
+        >
+          export
+        </Button>
+      ),
     },
   ];
   const linkedStatusChange = (value: DataType) => {
     modalClickItem(
       value,
       true,
-      "Confirmation",
+      'Confirmation',
       <div>
         <p>
           Are you sure you wish to unlink Scholar Account ID(
-          {value?.scholarId}) from Member Account ({value.scholarId})
+          {value?.sid}) from Member Account ({value.sid})
         </p>
       </div>,
       <div>
         <p>
-          Sochlar Account ID({value?.scholarId}) has been unlinked from Menmber
-          Account ({value.scholarId})
+          Sochlar Account ID({value?.sid}) has been unlinked from Menmber
+          Account ({value.sid})
         </p>
-      </div>
+      </div>,
     );
   };
   const modalClickItem = (
     value: DataType,
     nextStatus: boolean,
-    title:string,
+    title: string,
     firstStepRender: React.ReactNode,
     nextStepRender: React.ReactNode,
   ) => {
@@ -205,24 +323,23 @@ export default function Accounts() {
     modalClickItem(
       value,
       false,
-      "Confirmation",
+      'Confirmation',
       <div>
-          <p>
-            Are you sure you wish to delete Scholor Account ID(
-            {value?.scholarId})
-          </p>
-          <p>
-            This action cannot be undone and will also unlink any Member
-            Accounts
-          </p>
-        </div>,
-         <div>
-         <p>
-           Sochlar Account ID({value?.scholarId}) has been unlinked from
-           Menmber Account ({value.scholarId})
-         </p>
-       </div>,
-    )
+        <p>
+          Are you sure you wish to delete Scholor Account ID(
+          {value?.sid})
+        </p>
+        <p>
+          This action cannot be undone and will also unlink any Member Accounts
+        </p>
+      </div>,
+      <div>
+        <p>
+          Sochlar Account ID({value?.sid}) has been unlinked from Menmber
+          Account ({value.sid})
+        </p>
+      </div>,
+    );
   };
   //点击Modal中confirm时
   const confirmClick = (status: boolean, renderChildren: React.ReactNode) => {
@@ -230,87 +347,9 @@ export default function Accounts() {
     setModalStatus({
       ...modalStatus,
       status: true,
-      title: status ? "success" : "Error",
+      title: status ? 'success' : 'Error',
       render: <>{renderChildren}</>,
     });
-  };
-  const data: DataType[] = [
-    {
-      scholarId: "001",
-      scholarName: "a",
-      email: "a@b.com",
-      firstName: "a",
-      lastName: "b",
-      game: "axie",
-      tags: [1],
-      country: "cn",
-      status: true,
-      memberUserId: "123",
-      creationDate: "1660791192000",
-    },
-    {
-      scholarId: "002",
-      scholarName: "a",
-      email: "a@b.com",
-      firstName: "a",
-      lastName: "b",
-      game: "axie",
-      tags: [1],
-      country: "cn",
-      status: false,
-      memberUserId: "123",
-      creationDate: "1655185405",
-    },
-    {
-      scholarId: "003",
-      scholarName: "a",
-      email: "a@b.com",
-      firstName: "a",
-      lastName: "b",
-      game: "axie",
-      tags: [1],
-      country: "cn",
-      status: false,
-      memberUserId: "123",
-      creationDate: "1655185405",
-    },
-    {
-      scholarId: "005",
-      scholarName: "a",
-      email: "a@b.com",
-      firstName: "a",
-      lastName: "b",
-      game: "axie",
-      tags: [1],
-      country: "cn",
-      status: false,
-      memberUserId: "123",
-      creationDate: "1655185405",
-    },
-    {
-      scholarId: "004",
-      scholarName: "a",
-      email: "a@b.com",
-      firstName: "a",
-      lastName: "b",
-      game: "axie",
-      tags: [1],
-      country: "cn",
-      status: true,
-      memberUserId: "123",
-      creationDate: "1655185405",
-    },
-  ];
-  const exportCsv = () => {
-    let titleArr: any[] = [];
-    let keyArr: any[] = [];
-    colums.map((item) => {
-      if (item.title != "Action") {
-        titleArr.push(item.title);
-        keyArr.push(item.key);
-      }
-    });
-    downloadCsv(data, titleArr, keyArr);
   };
   const search = (values: any) => {
     console.log(values);
@@ -324,32 +363,50 @@ export default function Accounts() {
   };
   return (
     <div>
-      <ContentCard label="This portal displays all current Vallna Member Accounts">
+      {/* <ContentCard label="This portal displays all current Vallna Member Accounts"> */}
         <HeaderBar modalClickItem={modalClickItem}></HeaderBar>
-        <SearchBar search={search} export={exportCsv}/>
+        <SearchBar search={search} searchItem={searchItem} />
 
-        <Table rowKey={'scholarId'} columns={colums} dataSource={data} scroll={{ x: 1000 }}></Table>
-      </ContentCard>
+        <Table
+          rowClassName={'bg-bar-bg text-white bg-card-bg'}
+          rowKey={'sid'}
+          columns={colums}
+          dataSource={list}
+          scroll={{ x: 1000 }}
+          pagination={{
+            pageSize: 10,
+            itemRender: itemRender,
+            total: pageData.size,
+            onChange: (e) => {
+              pageNum = e;
+              getList();
+            },
+          }}
+        ></Table>
+      {/* </ContentCard> */}
       <Modal
         visible={modalStatus.status}
-        title={modalStatus.title}
         onCancel={modalCancel}
-        okText={"Confirm"}
-        footer={
-          stepNum == 1 ? (
-            <div>
-              <Button onClick={modalCancel}>Cancel</Button>
-              <Button
-                onClick={() => modalStatus.nextStep.confirm()}
-                className="bg-blue-500"
-              >
-                Confirm
-              </Button>
-            </div>
-          ) : (
-            <></>
-          )
-        }
+        className={"text-white"}
+        okText={'Confirm'}
+        bodyStyle={{borderTop:"4px solid purple"}}
+        destroyOnClose={true}
+        // footer={
+        //   stepNum == 1 ? (
+        //     <div>
+        //       <Button onClick={modalCancel}>Cancel</Button>
+        //       <Button
+        //         onClick={() => modalStatus.nextStep.confirm()}
+        //         className="bg-blue-500"
+        //       >
+        //         Confirm
+        //       </Button>
+        //     </div>
+        //   ) : (
+        //     <></>
+        //   )
+        // }
+        footer={null}
       >
         {modalStatus.render}
       </Modal>

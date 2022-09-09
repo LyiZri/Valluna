@@ -4,9 +4,15 @@ import { MenuOutlined } from '@ant-design/icons';
 import { history, useModel } from '@umijs/max';
 import { Avatar } from 'antd';
 export default function index(props: any) {
-  const { accountsInfoData, setAccountsInfoData } = useModel('accountsInfo');
+  const { accountsInfoData, setAccountsInfoData } = useModel(
+    'accountsInfo',
+    (model: any) => ({
+      accountsInfoData: model.accountsInfoData,
+      setAccountsInfoData: model.setAccountsInfoData,
+    }),
+  );
   const pushInfo = () => {
-    setAccountsInfoData(getUserInfo())
+    setAccountsInfoData(getUserInfo());
     history.push('/accounts/valluna-accounts/account-details');
   };
   return (

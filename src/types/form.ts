@@ -5,7 +5,7 @@ export declare type ButtonType  = typeof ButtonTypes[number]
 export interface IFormItem{
     name?: string;
     label?: string;
-    value?: string|number;
+    value?: string|number|number[];
     require?: boolean;
     type?: string;
     placeholder?:string,

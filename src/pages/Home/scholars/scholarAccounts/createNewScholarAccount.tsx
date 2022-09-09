@@ -1,55 +1,75 @@
-import { Button, PageHeader } from "antd";
-import React from "react";
+import { Button, PageHeader,message } from "antd";
+import React, { useState } from "react";
 import ContentForm from "@/compontents/Layout/ContentForm/index";
 import { IFormItem } from "@/types/form";
 import ContentCard from "@/compontents/Layout/ContentCard";
+import { createScholar } from "@/services/scholars";
+import { gameData } from "@/types/user";
 export default function createNewScholarAccount() {
+  const [loading,setLoading] = useState(false)
   const formItem: IFormItem[] = [
     {
-      name: "game",
-      label: "Game",
+      name: "account_game",
+      label: "Scholar Name",
+      require: false,
       value: "",
-      require: true,
-      type: "select",
+      type: "input",
+      placeholder:"Scholar Name"
     },
     {
-      name: "walletAddress",
+      name: "gameid",
+      label: "Game",
+      value: "Axie",
+      require: true,
+      type: "select",
+      placeholder:'Axie',
+      selectOption:gameData
+
+    },
+    {
+      name: "raddress",
       label: "Wallet Address",
       require: true,
       value: "",
       type: "input",
+      placeholder:'Wallet Address'
     },
     {
-      name: "eamil",
+      name: "email",
       label: "Email",
       require: true,
       value: "",
       type: "input",
+      placeholder:"Email"
     },
     {
-      name: "emailPassword",
+      name: "password",
       label: "Email Password",
       require: true,
       value: "",
       type: "password",
+      placeholder:"Email Password"
     },
     {
-      name: "scholarAccountName",
-      label: "Scholar Account Name",
-      require: false,
-      value: "",
-      type: "input",
-    },
-    {
-      name: "linkToAMemberAccount",
+      name: "memberid",
       label: "Link to a Member Account",
       require: false,
       value: "",
       type: "input",
+      placeholder:"User ID"
     },
   ];
-  const onFinish = (values: any) => {
-    console.log(values);
+  const onFinish = async(values: any) => {
+    setLoading(true)
+    try {
+      const data = await createScholar(values)
+      if(data.code == 1){
+        message.success("Success!")
+      }
+    } catch (error) {
+      
+    }
+    setLoading(false)
   };
   return (
     <div>
@@ -62,8 +82,8 @@ export default function createNewScholarAccount() {
       <ContentCard label="">
         <ContentForm formItem={formItem} onFinish={onFinish}>
             <>
-            <Button className="rounded" htmlType="reset" >Cancel</Button>
-            <Button className="rounded mx-2" type="primary" htmlType="submit">Save</Button>
+            <Button className=" bg-gray-button px-4 hover: text-white rounded-lg hover:bg-gray-800 hover:text-white focus:bg-gray-800 focus:text-white active:bg-gray-800 active:text-white" htmlType="reset" >Cancel</Button>
+            <Button className="ml-4 px-4 border-none rounded-lg bg-purple-button hover:bg-purple-800 focus:bg-purple-800 focus:text-white active:bg-purple-800 active:text-white hover:text-white  text-white"htmlType="submit">Save</Button>
             </>
         </ContentForm>
       </ContentCard>

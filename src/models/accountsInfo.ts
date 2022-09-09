@@ -9,13 +9,17 @@ const accountsInfo = () => {
         localStorage.getItem('valluna.user-info') != null
           ? JSON.parse(localStorage.getItem('valluna.user-info') as string)
           : {};
+          console.log('userinfo====',userinfo);
+          
       return userinfo;
     },
   );
   const [accountsInfoLanguageData, setAccountsInfoLanguageData] = useState(
     () => {
       if (typeof(accountsInfoData.language) == 'string') {
-        return JSON.parse(accountsInfoData.language as string);
+        console.log('123123',accountsInfoData.language);
+        
+        return JSON.parse(accountsInfoData.language);
       } else {
         return accountsInfoData.language;
       }

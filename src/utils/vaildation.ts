@@ -1,5 +1,6 @@
 const usernameVaild = (username:string)=>{
-    if(username === ''){
+    const usernameReg = new RegExp('/^[a-z0-9_-]{3,16}$/')
+    if(username === '' || !usernameReg.test(username)){
         return false
     }else{
         return true

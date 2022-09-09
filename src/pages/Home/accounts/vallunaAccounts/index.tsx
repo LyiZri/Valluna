@@ -5,20 +5,23 @@ import { IUserInfo } from '@/types/user';
 import { downloadCsv } from '@/utils/downloadFile';
 import { timestampToTime } from '@/utils/format';
 import { useModel } from '@umijs/max';
-import { Button, Space, Table } from 'antd';
+import { Button, PaginationProps, Space, Table } from 'antd';
 import { ColumnsType } from 'antd/lib/table';
 import { useEffect, useState } from 'react';
 import { history } from 'umi';
 import UserGroups from '@/compontents/User/UserGroupsTag';
+import  IconFont  from '@/compontents/Layout/IconFont';
+import {itemRender} from '@/compontents/Layout/PageContaineriTemRender'
 
 interface DataType extends IUserInfo {}
 
 export default function Accounts() {
   const [list, setList] = useState<DataType[]>([]);
-  let pageData = {
-    pageNum: 1,
+  let [pageData,setPageData] = useState({
+    size:10,
     amount: 10,
-  };
+  });
+  let pageNum = 1
   let searchData = {
     uid: '',
     username: '',
@@ -225,11 +228,17 @@ export default function Accounts() {
   const getList = async () => {
     setloading(true);
     try {
+      console.log(pageData);
+      
       const data = await getMembersList({
-        page: pageData.pageNum,
+        page: pageNum,
         size: '10',
         ...searchData,
       });
+      setPageData({
+        ...pageData,
+        amount:data.data.amount
+      })
       setList(data.data.list);
     } catch (error) {}
     setloading(false);
@@ -255,12 +264,10 @@ export default function Accounts() {
         scroll={{ x: 1000 }}
         pagination={{
           pageSize: 10,
+          itemRender:itemRender,
           total: pageData.amount,
           onChange: (e) => {
-            pageData = {
-              ...pageData,
-              pageNum: e,
-            };
+            pageNum = e
             getList();
           },
         }}

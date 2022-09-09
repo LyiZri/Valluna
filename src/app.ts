@@ -1,4 +1,5 @@
 import ContentHeader from '@/compontents/Layout/ContentHeader';
+import { history } from '@umijs/max';
 import { RequestConfig, RunTimeLayoutConfig } from '@umijs/max';
 import { message } from 'antd';
 import LeftMenu from './compontents/Layout/LeftMenu';
@@ -36,6 +37,7 @@ export const layout: RunTimeLayoutConfig = (initialState) => {
       width:'100vw',
       minHeight:'95vh',
       // paddingTop:'70px',
+      marginTop:"10px",
       background:'#272728'
     },
     layout: 'mix',
@@ -60,6 +62,10 @@ export const request: RequestConfig = {
       const { data }: any = response;
       if (data.code != 1) {
         message.error(data.msg);
+      }
+      if(data.code == -18){
+        localStorage.clear()
+        history.push('/login/login-page')
       }
       return response;
     },

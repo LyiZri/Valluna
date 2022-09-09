@@ -6,8 +6,9 @@ import { Button, Select } from 'antd';
 import { useEffect, useState } from 'react';
 
 interface IProps {
+  isDisabled?:boolean
 }
-export default function languageAdd() {
+export default function languageAdd({isDisabled = false}:IProps) {
   const [language, setLanguage] = useState({
     language: '',
     proficiency: 1,
@@ -67,6 +68,7 @@ export default function languageAdd() {
               <p className="text-white w-full text-left my-2">Language </p>
               <Select
                 showSearch
+                disabled={isDisabled}
                 placeholder={item.language ? item.language : 'Choose Languages'}
                 onChange={(e) => {
                   setLanguage({
@@ -92,6 +94,7 @@ export default function languageAdd() {
               <p className="text-white w-full text-left my-2">Proficiency </p>
               <Select
                 showSearch
+                disabled={isDisabled}
                 placeholder={
                   item.proficiency && item.proficiency !== 0
                     ? getProficiency(item.proficiency)
@@ -110,7 +113,7 @@ export default function languageAdd() {
                 <Select.Option value={2}>Limited Working</Select.Option>
                 <Select.Option value={3}>Elementary</Select.Option>
               </Select>
-              <div className="flex w-full justify-between mt-2">
+              <div className={`flex w-full justify-between mt-2 ${isDisabled?'hidden':''}`}>
                 <p></p>
                 <Button
                   className="border-none"
