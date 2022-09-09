@@ -5,12 +5,12 @@ import IconFont from "../IconFont";
 export  const itemRender:PaginationProps['itemRender'] = (_, type, originalElement) => {
     if (type === 'prev') {
       return <div className='bg-input-content'>
-      <IconFont type='icon-xiajiantou' className='rotate-90'></IconFont>;
+      <IconFont type='icon-xiajiantou' className='rotate-90'></IconFont>
       </div>
     }
     if (type === 'next') {
       return <div className='bg-input-content'>
-        <IconFont type='icon-xiajiantou' className='-rotate-90'></IconFont>;
+        <IconFont type='icon-xiajiantou' className='-rotate-90'></IconFont>
         </div>
     }
     return originalElement;

@@ -1,8 +1,4 @@
 import { message } from 'antd';
-import { render } from 'react-dom';
-import { useModel } from '@umijs/max';
-import uploadFileValue from '@/models/uploadFileValue'
-
 
 var JSonToCSV = {
   /*
@@ -17,43 +13,43 @@ var JSonToCSV = {
      */
   setDataConver: function (obj: any) {
     var bw = this.browser();
-    if (bw["ie"] < 9) return; // IE9以下的
-    var data = obj["data"],
+    if (bw['ie'] < 9) return; // IE9以下的
+    var data = obj['data'],
       ShowLabel =
-        typeof obj["showLabel"] === "undefined" ? true : obj["showLabel"],
-      fileName = (obj["fileName"] || "UserExport") + ".csv",
-      columns = obj["columns"] || {
+        typeof obj['showLabel'] === 'undefined' ? true : obj['showLabel'],
+      fileName = (obj['fileName'] || 'UserExport') + '.csv',
+      columns = obj['columns'] || {
         title: [],
         key: [],
         formatter: undefined,
       };
-    var ShowLabel = typeof ShowLabel === "undefined" ? true : ShowLabel;
-    var row = "",
-      CSV = "",
+    var ShowLabel = typeof ShowLabel === 'undefined' ? true : ShowLabel;
+    var row = '',
+      CSV = '',
       key;
     // 如果要现实表头文字
     if (ShowLabel) {
       // 如果有传入自定义的表头文字
       if (columns.title.length) {
         columns.title.map(function (n: any) {
-          row += n + ",";
+          row += n + ',';
         });
       } else {
         // 如果没有，就直接取数据第一条的对象的属性
-        for (key in data[0]) row += key + ",";
+        for (key in data[0]) row += key + ',';
       }
       row = row.slice(0, -1); // 删除最后一个,号，即a,b, => a,b
-      CSV += row + "\r\n"; // 添加换行符号
+      CSV += row + '\r\n'; // 添加换行符号
     }
     // 具体的数据处理
     data.map(function (n: any) {
-      row = "";
+      row = '';
       // 如果存在自定义key值
       if (columns.key.length) {
         columns.key.map(function (m: any) {
           row +=
             '"' +
-            (typeof columns.formatter === "function"
+            (typeof columns.formatter === 'function'
               ? columns.formatter(m, n[m]) || n[m]
               : n[m]) +
             '",';
@@ -62,48 +58,48 @@ var JSonToCSV = {
         for (key in n) {
           row +=
             '"' +
-            (typeof columns.formatter === "function"
+            (typeof columns.formatter === 'function'
               ? columns.formatter(key, n[key]) || n[key]
               : n[key]) +
             '",';
         }
       }
       row.slice(0, row.length - 1); // 删除最后一个,
-      CSV += row + "\r\n"; // 添加换行符号
+      CSV += row + '\r\n'; // 添加换行符号
     });
     if (!CSV) return;
     this.SaveAs(fileName, CSV);
   },
   SaveAs: function (fileName: string, csvData: any) {
     var bw = this.browser();
-    if (!bw["edge"] || !bw["ie"]) {
-      var alink: any = document.createElement("a");
-      alink.id = "linkDwnldLink";
+    if (!bw['edge'] || !bw['ie']) {
+      var alink: any = document.createElement('a');
+      alink.id = 'linkDwnldLink';
       alink.href = this.getDownloadUrl(csvData);
       document.body.appendChild(alink);
-      var linkDom: any = document.getElementById("linkDwnldLink");
-      linkDom.setAttribute("download", fileName);
+      var linkDom: any = document.getElementById('linkDwnldLink');
+      linkDom.setAttribute('download', fileName);
       linkDom.click();
       document.body.removeChild(linkDom);
-    } else if (bw["ie"] >= 10 || bw["edge"] == "edge") {
-      var _utf = "\uFEFF";
+    } else if (bw['ie'] >= 10 || bw['edge'] == 'edge') {
+      var _utf = '\uFEFF';
       var _csvData = new Blob([_utf + csvData], {
-        type: "text/csv",
+        type: 'text/csv',
       });
       (navigator as any).msSaveBlob(_csvData, fileName);
     } else {
-      var oWin: any = (window.top as Window).open("about:blank", "_blank");
-      oWin.document.write("sep=,\r\n" + csvData);
+      var oWin: any = (window.top as Window).open('about:blank', '_blank');
+      oWin.document.write('sep=,\r\n' + csvData);
       oWin.document.close();
-      oWin.document.execCommand("SaveAs", true, fileName);
+      oWin.document.execCommand('SaveAs', true, fileName);
       oWin.close();
     }
   },
   getDownloadUrl: function (csvData: any) {
-    var _utf = "\uFEFF"; // 为了使Excel以utf-8的编码模式，同时也是解决中文乱码的问题
+    var _utf = '\uFEFF'; // 为了使Excel以utf-8的编码模式，同时也是解决中文乱码的问题
     if (window.Blob && window.URL) {
       var csvFileData = new Blob([_utf + csvData], {
-        type: "text/csv",
+        type: 'text/csv',
       });
       return URL.createObjectURL(csvFileData);
     }
@@ -114,8 +110,8 @@ var JSonToCSV = {
     var ua = navigator.userAgent.toLowerCase();
     var s;
     (s =
-      ua.indexOf("edge") !== -1
-        ? (Sys.edge = "edge")
+      ua.indexOf('edge') !== -1
+        ? (Sys.edge = 'edge')
         : ua.match(/rv:([\d.]+)\) like gecko/))
       ? (Sys.ie = s[1])
       : (s = ua.match(/msie ([\d.]+)/))
@@ -140,36 +136,36 @@ var JSonToCSV = {
 export const downloadCsv = (data: any, titleArr: any, keyArr: any) => {
   JSonToCSV.setDataConver({
     data: data,
-    fileName: "CSVFile",
+    fileName: 'CSVFile',
     columns: {
       title: titleArr,
       key: keyArr,
       formatter: function (n: any, v: any) {
-        if (n === "amont" && !isNaN(Number(v))) {
-          v = v + "";
-          v = v.split(".");
-          v[0] = v[0].replace(/(\d)(?=(?:\d{3})+$)/g, "$1,"); // 千分位的设置
-          return v.join(".");
+        if (n === 'amont' && !isNaN(Number(v))) {
+          v = v + '';
+          v = v.split('.');
+          v[0] = v[0].replace(/(\d)(?=(?:\d{3})+$)/g, '$1,'); // 千分位的设置
+          return v.join('.');
         }
-        if (n === "proportion") return v + "%";
+        if (n === 'proportion') return v + '%';
       },
     },
   });
 };
 
 // 假设只处理逗号列分隔符
-const COLUMN_DELIMITER = ",";
+const COLUMN_DELIMITER = ',';
 
 export function csvToArray(csv: string): string[][] {
   const table = [] as string[][];
   let row: any[] = [];
-  let cell = "";
+  let cell = '';
   let openQuote = false;
   let i = 0;
 
   const pushCell = () => {
     row.push(cell);
-    cell = "";
+    cell = '';
   };
 
   const pushRow = () => {
@@ -182,12 +178,12 @@ export function csvToArray(csv: string): string[][] {
     const c = csv.charAt(i);
     if (c === COLUMN_DELIMITER) {
       pushCell();
-    } else if (c === "\r") {
-      if (csv.charAt(i + 1) === "\n") {
+    } else if (c === '\r') {
+      if (csv.charAt(i + 1) === '\n') {
         i++;
       }
       pushRow();
-    } else if (c === "\n") {
+    } else if (c === '\n') {
       pushRow();
     } else {
       return false;
@@ -214,7 +210,7 @@ export function csvToArray(csv: string): string[][] {
         // 确认单元结束
         openQuote = false;
         if (!handleSeparator(++i)) {
-          throw new Error("Wrong CSV format!");
+          throw new Error('Wrong CSV format!');
         }
       }
     } else if (!handleSeparator(i)) {
@@ -229,36 +225,33 @@ export function csvToArray(csv: string): string[][] {
   return table;
 }
 function csvToObject(csvString: any) {
-  var csvarry = csvString.split("\r\n");
+  var csvarry = csvString.split('\r\n');
   var datas = [];
-  var headers = csvarry[0].split(",");
+  var headers = csvarry[0].split(',');
   for (var i = 1; i < csvarry.length; i++) {
     var data: any = {};
-    var temp = csvarry[i].split(",");
+    var temp = csvarry[i].split(',');
     for (var j = 0; j < temp.length; j++) {
       data[headers[j]] = temp[j];
     }
-    console.log(data);
     datas.push(data);
   }
-  console.log(datas);
   return datas;
 }
 
 export function readCSVFile(obj: any) {
-  if(obj.type != 'text/csv'){
-    message.warning('Please Upload csv file')
-    return
+  if (obj.type != 'text/csv') {
+    message.warning('Please Upload csv file');
+    return;
   }
-  var reader = new FileReader();
-  var data:any[] = []
-  reader.readAsText(obj);
-  reader.onload =  function () {
-  };
-  data = csvToObject(reader.result);
-  return data
-  
-  reader.onloadend = () =>{
-    
-  }
+  return new Promise((res, rej) => {
+    var reader = new FileReader();
+    var data: any[] = [];
+    reader.readAsText(obj);
+    reader.onload = function () {
+      data = csvToObject(reader.result);
+      console.log('data===',data);
+      res(data);
+    };
+  });
 }

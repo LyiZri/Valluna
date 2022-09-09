@@ -1,41 +1,37 @@
 import ContentCard from '@/compontents/Layout/ContentCard/index';
+import IconFont from '@/compontents/Layout/IconFont';
 import { readCSVFile } from '@/utils/downloadFile';
-import { Button } from 'antd';
-import { history } from 'umi';
-import { useRef } from 'react';
 import { useModel } from '@umijs/max';
+import { Button } from 'antd';
+import { useState } from 'react';
+import { history } from 'umi';
 import { useEffect } from 'react';
 interface IProps {
   modalClickItem: Function;
 }
 export default function headerBar(props: IProps) {
-    let inputRef:any
-    const upload = ()=>{
-        inputRef.click()
+  const {scholarInfo,setScholarInfo} = useModel("scholarInfo")
+  let inputRef: any;
+  const upload = () => {
+    inputRef.click();
+  };
+  const getFile = async (e: any) => {
+    const data = await readCSVFile(e);
+    console.log(12333, e.name);
+    if (data) {
+      setFileValue(e);
     }
+  };
+  const [fileValue, setFileValue] = useState<File>();
   const createMass = () => {
     props.modalClickItem(
       {},
       true,
       '',
+      'file',
       <div className="text-center">
-        <p className="text-white text-2xl">Mass Create Scholar Accounts</p>
-        <ContentCard  label="Upload a .csv to create multiple Scholar Accounts">
-          <div className="text-2xl flex flex-columns justify-center text-purple-500 bg-black w-full h-32 cursor-pointer rounded-xl" onClick={upload}>
-            Drop  <span className='text-white'>  or </span>  Select CSV file
-            <input
-                ref={(el)=>{
-                    inputRef = el
-                }}
-              type="file"
-              className="hidden"
-              onChange={(e: any) => {
-                console.log(inputRef.files[0]);
-                console.log('result====',readCSVFile(inputRef.files[0]));
-              }}
-            />
-          </div>
-        </ContentCard>
+        <p className="text-white text-2xl mb-6">Mass Create Scholar Accounts</p>
+        <p className='text-white text-lg mb-6'>Remove multiple accounts from different User Groups in the same</p>
       </div>,
     );
   };
@@ -44,15 +40,10 @@ export default function headerBar(props: IProps) {
       {},
       true,
       'Mass Link Schilar Accounts',
-      <div>
-        <ContentCard label="Upload a .csv to link or multiple Scholar Accounts">
-          <input
-            type="file"
-            onChange={(e: any) => {
-              console.log(readCSVFile(e.target.files));
-            }}
-          />
-        </ContentCard>
+      'file',
+      <div className="text-center">
+        <p className="text-white text-2xl mb-6">Mass Upload Accounts </p>
+        <p className='text-white text-xl mb-6'>Upload a .csv to upload Multiple Accounts </p>
       </div>,
     );
   };
@@ -70,6 +61,7 @@ export default function headerBar(props: IProps) {
           className="ml-4 px-4 border-none rounded-lg bg-purple-button hover:bg-purple-800 focus:bg-purple-800 focus:text-white active:bg-purple-800 active:text-white hover:text-white  text-white"
           size="large"
           onClick={() => {
+            setScholarInfo({gameid:1})
             history.push(
               '/scholars/scholar-accounts/create-new-scholar-account',
             );

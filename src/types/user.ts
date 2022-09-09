@@ -27,6 +27,7 @@ export interface IUserInfo {
   regit_time?: string;
   permissons?:string[]
   language?:ILanguage[] | string
+  password?:string
 }
 export const userGroupsData = [
   { value: '1', label: 'Scholar' },

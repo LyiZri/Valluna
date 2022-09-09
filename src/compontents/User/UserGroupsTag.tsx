@@ -10,7 +10,7 @@ export default function UserGroups({ tagType,className='' }: IProps) {
   userGroupsData.map((item, index) => {
     if (item.value == tagType) {
       userTag = (
-        <Tag key={index} className={className}>
+        <Tag key={index} className={`className="bg-gray-button text-white px-4 py-2 border-none rounded" ${className}`}>
           {item.label}
         </Tag>
       );
