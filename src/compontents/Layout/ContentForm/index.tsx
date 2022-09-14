@@ -36,6 +36,7 @@ export default function ContentForm({
         if (item.render) {
           return (
             <Form.Item
+            colon={false}
               key={index}
               name={item.name}
               label={item.label}
@@ -49,6 +50,7 @@ export default function ContentForm({
         if (item.type === 'radio') {
           return (
             <Form.Item
+            colon={false}
               key={index}
               name={item.name}
               label={item.label}
@@ -59,7 +61,7 @@ export default function ContentForm({
                   {item.selectOption?.map(
                     (item: ISelectOption, index: number) => {
                       return (
-                        <Radio key={item.value} value={item.value}>
+                        <Radio key={item.value} className='text-white' value={item.value}>
                           {item.text}
                         </Radio>
                       );
@@ -73,6 +75,7 @@ export default function ContentForm({
         if (item.type === 'input') {
           return (
             <Form.Item
+            colon={false}
               key={index}
               name={item.name}
               label={item.label}
@@ -85,6 +88,7 @@ export default function ContentForm({
         if (item.type == 'button') {
           return (
             <Form.Item
+            colon={false}
               key={index}
               name={item.name}
               label={item.label}
@@ -97,6 +101,7 @@ export default function ContentForm({
         if (item.type == 'password') {
           return (
             <Form.Item
+            colon={false}
               key={item.name}
               name={item.name}
               label={item.label}
@@ -109,6 +114,7 @@ export default function ContentForm({
         if (item.type == 'select') {
           return (
             <Form.Item
+            colon={false}
               key={item.name}
               name={item.name}
               label={item.label}
@@ -134,6 +140,7 @@ export default function ContentForm({
         if(item.type == "userGroups"){
           return (
             <Form.Item
+            colon={false}
             key={item.name}
             name={item.name}
             label={item.label}

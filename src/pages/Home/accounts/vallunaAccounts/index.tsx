@@ -228,8 +228,6 @@ export default function Accounts() {
   const getList = async () => {
     setloading(true);
     try {
-      console.log(pageData);
-      
       const data = await getMembersList({
         page: pageNum,
         size: '10',

@@ -14,6 +14,8 @@ var JSonToCSV = {
   setDataConver: function (obj: any) {
     var bw = this.browser();
     if (bw['ie'] < 9) return; // IE9以下的
+    console.log('obj====',obj);
+    
     var data = obj['data'],
       ShowLabel =
         typeof obj['showLabel'] === 'undefined' ? true : obj['showLabel'],
@@ -133,6 +135,21 @@ var JSonToCSV = {
  * @param {titleArr} title集合数组
  * @param {keyArr} key集合数组
  */
+
+export const apiDownloadCsv = (title:string,data:any) =>{
+  let valueArr = ''
+  data.map((_:any,index:number)=>{
+    if (index-1 == data.length){
+      valueArr += data[index]
+    }else{
+      valueArr += data[index]+='\r\n'
+    }
+  })
+  console.log(valueArr);
+  
+  JSonToCSV.SaveAs(title,valueArr)
+}
+
 export const downloadCsv = (data: any, titleArr: any, keyArr: any) => {
   JSonToCSV.setDataConver({
     data: data,

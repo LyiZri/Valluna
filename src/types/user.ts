@@ -18,7 +18,7 @@ export interface IUserInfo {
   groups?: string|number[];
   country?: string;
   discordid?: string;
-  memberid?: string;
+  memberid?: string|number;
   tags?: IUserTag[];
   memberuserid?: string;
   raddress?: string;
@@ -28,6 +28,13 @@ export interface IUserInfo {
   permissons?:string[]
   language?:ILanguage[] | string
   password?:string
+  scholarid?:string|number
+  gid?:string|number
+  gname?:string
+  type?:number
+  num?:number
+  members?:string
+
 }
 export const userGroupsData = [
   { value: '1', label: 'Scholar' },

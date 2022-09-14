@@ -59,7 +59,7 @@ export default function searchBar(props: IProps) {
                   <Form.Item name={item.name}>
                     <Input
                       className="mb-4 bg-input-content text-white rounded-lg"
-                      value={item.value}
+                      value={item.value as string}
                       placeholder={item.placeholder}
                     />
                   </Form.Item>

@@ -2,9 +2,11 @@ import { itemRender } from '@/compontents/Layout/PageContaineriTemRender';
 import SearchBar from '@/compontents/Layout/SearchBar';
 import UserGroups from '@/compontents/User/UserGroupsTag';
 import { getMembersList } from '@/services/members';
+import { unLinkScholarItem } from '@/services/scholars';
 import { IFormItem } from '@/types/form';
 import { IUserInfo } from '@/types/user';
-import { Button } from 'antd';
+import { Button, message } from 'antd';
+import { TableRowSelection } from 'antd/es/table/interface';
 import Table, { ColumnsType } from 'antd/lib/table';
 import React, { useEffect, useState } from 'react';
 interface DataType extends IUserInfo {}
@@ -28,10 +30,13 @@ export default function linkTable({ memberUserId }: IProps) {
     groups: [],
   };
   const onSelectChange = (newSelectedRowKeys: React.Key[]) => {
+    console.log(newSelectedRowKeys);
+    
     setSelectedRowKeys(newSelectedRowKeys);
   };
-  const rowSelection = {
+  const rowSelection:TableRowSelection<DataType>  = {
     selectedRowKeys,
+    type:'radio',
     onChange: onSelectChange,
   };
 
@@ -63,6 +68,14 @@ export default function linkTable({ memberUserId }: IProps) {
     searchData = values;
     await getList();
   };
+  const linkItem = async () =>{
+    const sid  = list[(selectedRowKeys[0] as number)-1].scholarid
+    const uid  = list[(selectedRowKeys[0] as number)-1].uid
+    const data = await unLinkScholarItem({sid,uid,type:"link"})
+    if(data.code == 1){
+      message.success('success')
+    }
+  }
   const searchItem: IFormItem[] = [
     {
       name: 'uid',
@@ -111,12 +124,15 @@ export default function linkTable({ memberUserId }: IProps) {
       type: '',
       col: 3,
       render: (
-        <Button className="mx-6  border-none rounded-lg bg-purple-button hover:bg-purple-800 hover:text-white  text-white">
+        <Button onClick={linkItem} 
+        className="ml-4 px-4 border-none rounded-lg bg-purple-button hover:bg-purple-800 focus:bg-purple-800 focus:text-white active:bg-purple-800 active:text-white hover:text-white  text-white"
+        >
           Link
         </Button>
       ),
     },
   ];
+  
   const colums: ColumnsType<DataType> = [
     {
       title: 'User ID',

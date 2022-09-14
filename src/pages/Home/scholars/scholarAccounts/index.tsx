@@ -4,11 +4,14 @@ import SearchBar from '@/compontents/Layout/SearchBar';
 import {
   deleteScholarItem,
   getScholarsInfoList,
+  massCreateScholar,
+  massLinkScholar,
+  massUploadFile,
   unLinkScholarItem,
 } from '@/services/scholars';
 import { IFormItem } from '@/types/form';
 import { gameData, IUserInfo } from '@/types/user';
-import { downloadCsv, readCSVFile } from '@/utils/downloadFile';
+import { apiDownloadCsv, downloadCsv } from '@/utils/downloadFile';
 import { timestampToTime } from '@/utils/format';
 import { history, useModel } from '@umijs/max';
 import { Button, message, Modal, Table, Tag } from 'antd';
@@ -43,16 +46,16 @@ export default function Accounts() {
   const { scholarInfo, setScholarInfo } = useModel('scholarInfo');
   //文件上传控制器
   let inputRef: any;
+  //上传的文件
+  let inputfile: any;
 
   const uploadFile = () => {
     inputRef.click();
   };
   const getFile = async (e: any) => {
-    const data = await readCSVFile(e);
-    console.log(12333, e.name);
-    if (data) {
-      setFileValue(e);
-    }
+    console.log(e);
+    inputfile = e;
+    setFileValue(e);
   };
   // 传给model当前列数据
   const [modalValue, setModalValue] = useState<DataType>();
@@ -239,16 +242,17 @@ export default function Accounts() {
                 linkedStatusChange(record);
               }}
             >
-              {record.memberid == '' ? (
+              {record.memberid == '' || record.memberid==0 ? (
                 <IconFont
-                  type="icon-jianshaoyonghu"
-                  className="text-2xl"
-                ></IconFont>
+                type="icon-tianjiayonghu"
+                className="text-2xl"
+              ></IconFont>
               ) : (
                 <IconFont
-                  type="icon-tianjiayonghu"
-                  className="text-2xl"
-                ></IconFont>
+                type="icon-jianshaoyonghu"
+                className="text-2xl"
+              ></IconFont>
+               
               )}
             </Button>
             <Button
@@ -371,6 +375,34 @@ export default function Accounts() {
       modalClickItem(
         value,
         true,
+        'ConfirmationLink',
+        '',
+        <div>
+          <LinkTable memberUserId={value.memberid as string}></LinkTable>
+        </div>,
+        <div>
+          <p className="text-2xl text-white ">Confirmation </p>
+          <p className="text-xl my-32">
+            Are you sure you wish to unlink Scholar Account lD ({value.sid})
+            from Menmber Account ({value.sid})?
+          </p>
+          <div className="px-32 mt-32 flex justify-between">
+            <Button onClick={modalCancel} className="px-12 bg-gray-button hover: text-white rounded-lg hover:bg-gray-800 hover:text-white focus:bg-gray-800 focus:text-white active:bg-gray-800 active:text-white">
+              Cancel
+            </Button>
+            <Button
+              onClick={() => deleteConfirm(value.sid)}
+              className="ml-4 px-12 border-none rounded-lg bg-purple-button hover:bg-purple-800 focus:bg-purple-800 focus:text-white active:bg-purple-800 active:text-white hover:text-white  text-white"
+            >
+              Confirm
+            </Button>
+          </div>
+        </div>,
+      );
+    } else {
+      modalClickItem(
+        value,
+        true,
         'ConfirmationUnlink',
         '',
         <div>
@@ -380,11 +412,12 @@ export default function Accounts() {
             from Menmber Account ({value.sid})?
           </p>
           <div className="px-32 mt-32 flex justify-between">
-            <Button className="px-12 bg-gray-button hover: text-white rounded-lg hover:bg-gray-800 hover:text-white focus:bg-gray-800 focus:text-white active:bg-gray-800 active:text-white">
+            <Button onClick={modalCancel} className="px-12 bg-gray-button hover: text-white rounded-lg hover:bg-gray-800 hover:text-white focus:bg-gray-800 focus:text-white active:bg-gray-800 active:text-white">
               Cancel
             </Button>
             <Button
-              onClick={() => unlinkScholar(value.sid, value.uid)}
+              onClick={() => {console.log(value);
+               unlinkScholar(value.sid, value.uid)}}
               className="ml-4 px-12 border-none rounded-lg bg-purple-button hover:bg-purple-800 focus:bg-purple-800 focus:text-white active:bg-purple-800 active:text-white hover:text-white  text-white"
             >
               Confirm
@@ -398,34 +431,7 @@ export default function Accounts() {
           </p>
         </div>,
       );
-    } else {
-      modalClickItem(
-        value,
-        true,
-        'ConfirmationLink',
-        '',
-        <div>
-          <LinkTable memberUserId={value.memberid as string}></LinkTable>
-        </div>,
-        <div>
-          <p className="text-2xl text-white ">Confirmation </p>
-          <p className="text-xl my-32">
-            Are you sure you wish to unlink Scholar Account lD ({value.sid})
-            from Menmber Account ({value.sid})?
-          </p>
-          <div className="px-32 mt-32 flex justify-between">
-            <Button className="px-12 bg-gray-button hover: text-white rounded-lg hover:bg-gray-800 hover:text-white focus:bg-gray-800 focus:text-white active:bg-gray-800 active:text-white">
-              Cancel
-            </Button>
-            <Button
-              onClick={() => deleteConfirm(value.sid)}
-              className="ml-4 px-12 border-none rounded-lg bg-purple-button hover:bg-purple-800 focus:bg-purple-800 focus:text-white active:bg-purple-800 active:text-white hover:text-white  text-white"
-            >
-              Confirm
-            </Button>
-          </div>
-        </div>,
-      );
+      
     }
   };
   const modalClickItem = (
@@ -486,7 +492,7 @@ export default function Accounts() {
           This action cannot be undone and will also unlink any Member Accounts
         </p>
         <div className="px-32 mt-32 flex justify-between">
-          <Button className="px-12 bg-gray-button hover: text-white rounded-lg hover:bg-gray-800 hover:text-white focus:bg-gray-800 focus:text-white active:bg-gray-800 active:text-white">
+          <Button onClick={modalCancel} className="px-12 bg-gray-button hover: text-white rounded-lg hover:bg-gray-800 hover:text-white focus:bg-gray-800 focus:text-white active:bg-gray-800 active:text-white">
             Cancel
           </Button>
           <Button
@@ -519,14 +525,75 @@ export default function Accounts() {
     console.log(values);
   };
 
-  const uploadClick = () => {};
-  const modalCancel = () => {
+  const uploadClick = async () => {
+    if (fileValue?.type != 'text/csv' || !fileValue) {
+      message.error('Upload the CSV file correctly');
+      return;
+    }
+    try {
+      const data = await massUploadFile(fileValue);
+      let res:any
+      modalStatus.title == 'masscreate'?
+       res = await massCreateScholar({ filename: data.data.file_name }):
+       res = await massLinkScholar({ filename: data.data.file_name })
+    if (data) {
+      confirmClick(
+        true,
+        <div className="text-center w-full">
+          <p className="text-white text-2xl mb-8">
+            Mass Create Scholar Accounts
+          </p>
+          <p className="text-gray-500 text-lg">
+          Some entries failed to be uploaded. Check file for results.
+          </p>
+          <p className="my-16">
+            <IconFont className="text-6xl" type={'icon-warning'}></IconFont>
+          </p>
+          <p>
+            <Button onClick={()=>{apiDownloadCsv('ErrorMsg',res.data);}} className=" bg-gray-button px-4 hover: text-white rounded-lg hover:bg-gray-800 hover:text-white focus:bg-gray-800 focus:text-white active:bg-gray-800 active:text-white">
+            Download Results
+            </Button>
+          </p>
+        </div>,
+      );
+    } else {
+      confirmClick(
+        true,
+        <div className="text-center w-full">
+          <p className="text-white text-2xl mb-8">
+            Mass Create Scholar Accounts
+          </p>
+          <p className="text-gray-500 text-lg">
+            All X entries were successfully created
+          </p>
+          <p className="my-16">
+            <IconFont className="text-6xl" type={'icon-success'}></IconFont>
+          </p>
+        </div>,
+      );
+    }
+  } catch (error) {
+      message.warning('Upload files according to the template')
+  }
+  };
+  const modalCancel = async () => {
     setModalStatus({
       ...modalStatus,
       status: false,
     });
     setStepNum(1);
+    await getList()
   };
+  const downloadTemplate =() =>{
+    apiDownloadCsv('Template',[[
+      "Scholar ID",
+      "User ID",
+  ],
+  [
+      "xxx",
+      "xxx",
+  ],])
+  }
   return (
     <div>
       <HeaderBar modalClickItem={modalClickItem}></HeaderBar>
@@ -570,54 +637,57 @@ export default function Accounts() {
         footer={null}
         closeIcon={<IconFont type="icon-close" className="text-2xl"></IconFont>}
       >
-        <div className="text-center">
-          {modalStatus.render}
+        {stepNum == 1 && (
+          <div className="text-center">
+            {modalStatus.render}
 
-          {/* 如果是文件类型上传的modal 则展示 */}
-          {modalStatus.type == 'file' && (
-            <>
-              <div
-                className="text-2xl  text-purple-500 bg-black mx-16 py-16 cursor-pointer rounded-xl"
-                onClick={uploadFile}
-              >
-                <div>
-                  {!fileValue && (
-                    <p>
-                      Drop <span className="text-white"> or </span> Select CSV
-                      file
-                      <IconFont
-                        type="icon-add-files"
-                        className="text-5xl font-semibold"
-                      ></IconFont>
-                    </p>
-                  )}
-                  {fileValue && <p>{fileValue.name}</p>}
-                  <input
-                    ref={(el) => {
-                      inputRef = el;
-                    }}
-                    type="file"
-                    className="hidden"
-                    onChange={(e: any) => {
-                      getFile(inputRef.files[0]);
-                    }}
-                  />
-                </div>
-              </div>
-              <div className="mx-16 mt-12 flex justify-between">
-                <Button className=" bg-gray-button px-4 hover: text-white rounded-lg hover:bg-gray-800 hover:text-white focus:bg-gray-800 focus:text-white active:bg-gray-800 active:text-white">
-                  Download Template
-                </Button>
-                <Button
-                  onClick={uploadClick}
-                  className="ml-4 px-12 border-none rounded-lg bg-purple-button hover:bg-purple-800 focus:bg-purple-800 focus:text-white active:bg-purple-800 active:text-white hover:text-white  text-white"
+            {/* 如果是文件类型上传的modal 则展示 */}
+            {modalStatus.type == 'file' && (
+              <>
+                <div
+                  className="text-2xl  text-purple-500 bg-black mx-16 py-16 cursor-pointer rounded-xl"
+                  onClick={uploadFile}
                 >
-                  Upload
-                </Button>
-              </div>
-            </>
-          )}
-        </div>
+                  <div>
+                    {!fileValue && (
+                      <p>
+                        Drop <span className="text-white"> or </span> Select CSV
+                        file
+                        <IconFont
+                          type="icon-add-files"
+                          className="text-5xl font-semibold"
+                        ></IconFont>
+                      </p>
+                    )}
+                    {fileValue && <p>{fileValue.name}</p>}
+                    <input
+                      ref={(el) => {
+                        inputRef = el;
+                      }}
+                      type="file"
+                      className="hidden"
+                      onChange={(e: any) => {
+                        getFile(inputRef.files[0]);
+                      }}
+                    />
+                  </div>
+                </div>
+                <div className="mx-16 mt-12 flex justify-between">
+                  <Button onClick={downloadTemplate} className=" bg-gray-button px-4 hover: text-white rounded-lg hover:bg-gray-800 hover:text-white focus:bg-gray-800 focus:text-white active:bg-gray-800 active:text-white">
+                    Download Template
+                  </Button>
+                  <Button
+                    onClick={uploadClick}
+                    className="ml-4 px-12 border-none rounded-lg bg-purple-button hover:bg-purple-800 focus:bg-purple-800 focus:text-white active:bg-purple-800 active:text-white hover:text-white  text-white"
+                  >
+                    Upload
+                  </Button>
+                </div>
+              </>
+            )}
+          </div>
+        )}
+        {stepNum == 2 && <div>{modalStatus.render}</div>}
       </Modal>
     </div>
   );

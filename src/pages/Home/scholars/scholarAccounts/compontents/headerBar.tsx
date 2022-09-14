@@ -27,7 +27,7 @@ export default function headerBar(props: IProps) {
     props.modalClickItem(
       {},
       true,
-      '',
+      'masscreate',
       'file',
       <div className="text-center">
         <p className="text-white text-2xl mb-6">Mass Create Scholar Accounts</p>
@@ -39,7 +39,7 @@ export default function headerBar(props: IProps) {
     props.modalClickItem(
       {},
       true,
-      'Mass Link Schilar Accounts',
+      'masslink',
       'file',
       <div className="text-center">
         <p className="text-white text-2xl mb-6">Mass Upload Accounts </p>

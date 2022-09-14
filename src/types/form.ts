@@ -4,7 +4,7 @@ declare const ButtonTypes : ["primary","default"]
 export declare type ButtonType  = typeof ButtonTypes[number]
 export interface IFormItem{
     name?: string;
-    label?: string;
+    label?: string | React.ReactNode;
     value?: string|number|number[];
     require?: boolean;
     type?: string;

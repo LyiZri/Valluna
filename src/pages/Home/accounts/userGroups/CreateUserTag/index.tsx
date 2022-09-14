@@ -1,24 +1,95 @@
 import ContentCard from '@/compontents/Layout/ContentCard/index';
 import ContentForm from '@/compontents/Layout/ContentForm';
+import IconFont from '@/compontents/Layout/IconFont';
+import { itemRender } from '@/compontents/Layout/PageContaineriTemRender';
 import SearchBar from '@/compontents/Layout/SearchBar';
-import {  IFormItem }from '@/types/form';
-import { DeleteOutlined, SearchOutlined, UndoOutlined } from '@ant-design/icons';
-import { Button, Form, PageHeader, Space, Tag } from 'antd';
-import Table, { ColumnsType } from 'antd/lib/table';
-import { useState } from 'react';
-import AddUsers from './AddUsers';
-import {IUserInfo} from '@/types/user'
 import UploadModal from '@/compontents/Profession/UploadModal/index';
+import UserGroups from '@/compontents/User/UserGroupsTag';
+import { getMembersList } from '@/services/members';
+import { createUserTag } from '@/services/scholars';
+import { IFormItem } from '@/types/form';
+import { IUserInfo } from '@/types/user';
+import { useModel, useSearchParams } from '@umijs/max';
+import { Button, Form, message, PageHeader, Popover, Space, Tag } from 'antd';
+import Table, { ColumnsType } from 'antd/lib/table';
+import { useEffect, useState } from 'react';
+import AddUsers from './AddUsers';
+
+interface DataType extends IUserInfo {}
 
 export default function CreateUserTag() {
-
-  const [addUserModalVisible,setAddUserModalVisible] = useState(false)
-  const [uploadModalStatus,setUploadModalStatus] = useState(false)
-  const [form] = Form.useForm()
+  const [addUserModalVisible, setAddUserModalVisible] = useState(false);
+  const [uploadModalStatus, setUploadModalStatus] = useState(false);
+  const [form] = Form.useForm();
+  const [addArr, setAddArr] = useState<IUserInfo[]>([]);
+  const [list, setList] = useState<DataType[]>([]);
+  const [selectRowKey, setSelectRowKey] = useState<React.Key[]>();
+  let [pageData, setPageData] = useState({
+    size: 10,
+    amount: 10,
+  });
+  let pageNum = 1;
+  let searchData = {
+    gid: '',
+    gname: '',
+    email: '',
+    groups: [],
+  };
+  const [isUpdated, setIsUpdated] = useState(false);
+  let memberGroup: string[] = [];
+  const { groupInfo, setGroupInfo } = useModel('groupsInfo');
+  const [params] = useSearchParams();
+  useEffect(() => {
+    if (params.getAll('gid')[0]) {
+      setIsUpdated(true);
+      if (groupInfo.members&&groupInfo.members !== '') {
+        memberGroup = groupInfo.members.split(',');
+      }
+      setSelectRowKey(memberGroup)
+    }
+  }, []);
+  const getList = async () => {
+    
+    const data = await getMembersList({
+      page: pageNum,
+      size: '10',
+      ...searchData,
+    });
+    setPageData({
+      ...pageData,
+      amount: data.data.amount,
+    });
+    setList(data.data.list);
+  };
+  const search = async (values: any) => {
+    searchData = values;
+    await getList();
+  };
+  const onSelectChange = (e: React.Key[]) => {
+    setSelectRowKey(e);
+  };
+  const rowSelection = {
+    selectRowKey,
+    onChange: onSelectChange,
+  };
   const formItem: IFormItem[] = [
     {
-      name: 'accountType',
-      label: 'Account Type',
+      name: 'type',
+      label: (
+        <p>
+          Account Type
+          <Popover
+            color="#000"
+            content={
+              <p className="text-white bg-black">
+                Choose which accounts can be uploaded to user tag
+              </p>
+            }
+          >
+            <IconFont type="icon-gantanhao" className="text-xl ml-5"></IconFont>
+          </Popover>
+        </p>
+      ),
       require: true,
       value: 2,
       type: 'radio',
@@ -28,27 +99,49 @@ export default function CreateUserTag() {
       ],
     },
     {
-      name: 'userTagName',
-      label: 'User Tag Name',
+      name: 'gname',
+      label: 'User Group Name',
       type: 'input',
-      value: '',
+      value: isUpdated ? groupInfo.gname : '',
       require: true,
       placeholder: '',
     },
     {
       name: 'uploadUser',
-      label: 'Upload Users',
+      label: (
+        <p>
+          Account Type
+          <Popover
+            color="#000"
+            content={
+              <p className="text-white bg-black">
+                Allow operator to upload accounts to the user tag
+              </p>
+            }
+          >
+            <IconFont type="icon-gantanhao" className="text-xl ml-5"></IconFont>
+          </Popover>
+        </p>
+      ),
       type: 'buttonBar',
       value: '',
       require: false,
       render: (
         <Space>
-          <Button className=" bg-primary text-white " type='primary' onClick={()=>{
-            setAddUserModalVisible(true)
-          }}>
+          <Button
+            className="ml-4  border-none rounded-lg bg-purple-button hover:bg-purple-800 focus:bg-purple-800 focus:text-white active:bg-purple-800 active:text-white hover:text-white  text-white"
+            onClick={() => {
+              setAddUserModalVisible(true);
+            }}
+          >
             Add Users
           </Button>
-          <Button className=" bg-primary " type='primary' onClick={()=>{setUploadModalStatus(true)}}>
+          <Button
+            className="ml-4  border-none rounded-lg bg-purple-button hover:bg-purple-800 focus:bg-purple-800 focus:text-white active:bg-purple-800 active:text-white hover:text-white  text-white"
+            onClick={() => {
+              setUploadModalStatus(true);
+            }}
+          >
             Mass Upload
           </Button>
         </Space>
@@ -60,34 +153,27 @@ export default function CreateUserTag() {
       type: 'text',
       value: '',
       require: false,
-      render: <p>{}</p>,
+      render: <p>{isUpdated ? groupInfo.num : addArr.length}</p>,
     },
   ];
-  const searchBarItem: IFormItem[] = [
+  const searchItem: IFormItem[] = [
     {
-      name: 'scholarId',
+      name: 'gid',
       type: 'input',
-      placeholder: 'Scholar ID',
+      placeholder: 'User ID',
       label: '',
       value: '',
+      col: 3,
       require: false,
     },
     {
       name: 'scholarAccountName',
       type: 'input',
-      placeholder: 'Scholoar Account Name',
+      placeholder: 'User Name',
       label: '',
       value: '',
+      col: 3,
       require: false,
-      
-    },
-    {
-      name:'wallet',
-      type:'input',
-      placeholder:'Wallet',
-      label:'',
-      value:'',
-      require:false
     },
     {
       name: 'email',
@@ -95,40 +181,31 @@ export default function CreateUserTag() {
       placeholder: 'Email',
       label: '',
       value: '',
+      col: 3,
       require: false,
     },
     {
       name: 'groups',
-      type: 'select',
-      placeholder: 'Grops',
-      selectOption: [{value:1,text:'12312313'},{value:2,text:'12312312'}],
-      label: '',
-      value: '',
-      require: false,
+      type: 'groups-select',
+      col: 3,
+      placeholder: 'Groups',
     },
     {
-      name: 'action',
-      type: 'button',
-      label: '',
-      value: '',
-      require: false,
-      render: (
-        <>
-          <Button icon={<UndoOutlined />} htmlType="reset"></Button>
-        </>
-      ),
+      name: 'col',
+      type: 'col',
+      col: 6,
     },
     {
-      name: 'action1',
-      type: 'button',
-      label: '',
-      value: '',
-      require: false,
-      render: (
-        <>
-          <Button icon={<SearchOutlined/>} htmlType="submit"></Button>
-        </>
-      ),
+      name: '',
+      type: 'link-reset',
+      col: 1,
+      icon: 'icon-shuaxin',
+    },
+    {
+      name: '',
+      type: 'link-submit',
+      col: 1,
+      icon: 'icon-chazhao',
     },
     {
       name: 'action2',
@@ -138,26 +215,23 @@ export default function CreateUserTag() {
       require: false,
       render: (
         <>
-        <Button className='bg-primary' type='primary'>Add</Button>
+          <Button className="ml-4  border-none rounded-lg bg-purple-button hover:bg-purple-800 focus:bg-purple-800 focus:text-white active:bg-purple-800 active:text-white hover:text-white  text-white">
+            Remove Selected
+          </Button>
         </>
       ),
     },
   ];
   const tableColums: ColumnsType<IUserInfo> = [
     {
-      title: 'Scholar User ID',
-      dataIndex: 'scholarUserId',
-      key: 'scholarUserId',
+      title: 'User ID',
+      dataIndex: 'gid',
+      key: 'gid',
     },
     {
-      title: 'Scholar Name',
-      dataIndex: 'scholarName',
-      key: 'scholarName',
-    },
-    {
-      title: 'Wallet',
-      dataIndex: 'wallet',
-      key: 'wallet',
+      title: 'User Name',
+      dataIndex: 'gname',
+      key: 'gname',
     },
     {
       title: 'Email',
@@ -165,84 +239,94 @@ export default function CreateUserTag() {
       key: 'email',
     },
     {
+      title: 'First Name',
+      dataIndex: 'firstname',
+      key: 'firstname',
+      render: (_, { firstname }) => {
+        return firstname ? <p>{firstname}</p> : <>-</>;
+      },
+    },
+    {
+      title: 'Last Name',
+      dataIndex: 'lastname',
+      key: 'lastname',
+      render: (_, { lastname }) => {
+        return lastname ? <p>{lastname}</p> : <>-</>;
+      },
+    },
+    {
       title: 'Game',
       dataIndex: 'game',
       key: 'game',
-      render:(_,{game})=>{
-        return(
-          <Tag>{game?game:'undefined'}</Tag>
-        )
-      }
+      render: (_, { game }) => {
+        return <Tag>{game ? game : '-'}</Tag>;
+      },
     },
     {
-      title: 'Tags',
-      dataIndex: 'tags',
-      key: 'tags',
-      render:(_,{tags})=>{
-        return(
-
-          tags?.map((item,index)=>{
-            return(
-              <Tag key={index}>{item.text}</Tag>
-              )
-            })
-            )
-      }
+      title: 'Groups',
+      dataIndex: 'groups',
+      key: 'groups',
+      render: (_, { groups }) => {
+        return <UserGroups tagType={groups as string}></UserGroups>;
+      },
     },
     {
-      title: 'Member User ID',
-      dataIndex: 'memberUserId',
-      key: 'memberUserId',
+      title: 'Discord ID',
+      dataIndex: 'discordid',
+      key: 'discordid',
+      render: (_, { discordid }) => {
+        return discordid ? <p>{discordid}</p> : <>-</>;
+      },
     },
     {
       title: 'Action',
       key: 'action',
       fixed: 'right',
-      width: 200,
-      render: (_, record) => {
+      render: (_, { gid }) => {
         return (
           <Space>
-            <DeleteOutlined className="cursor-pointer" />
+            <IconFont
+              onClick={() => deleteItem(gid as string)}
+              type="icon-shanchu"
+              className="text-2xl cursor-pointer"
+            ></IconFont>
           </Space>
         );
       },
     },
   ];
-  const [tableData,setTableData] =useState<IUserInfo[]>([
-    // {
-    //   scholarUserId:'1',
-    //   scholarName:'2',
-    //   wallet:'3',
-    //   email:'4',
-    //   game:5,
-    //   tags:[{value:1,text:'Tags'}],
-    //   memberUserId:'7'
-    // },
-    // {
-    //   scholarUserId:'2',
-    //   scholarName:'2',
-    //   wallet:'3',
-    //   email:'4',
-    //   game:5,
-    //   tags:[{value:1,text:'Tags'}],
-    //   memberUserId:'7'
-    // },
-    // {
-    //   scholarUserId:'3',
-    //   scholarName:'2',
-    //   wallet:'3',
-    //   email:'4',
-    //   game:5,
-    //   tags:[{value:1,text:'Tags'}],
-    //   memberUserId:'7'
-    // }
-  ])
-  const formSave = (e:any)=>{
+
+  const deleteItem = (gid: string) => {
+    let arr: IUserInfo[] = [];
+    arr = arr.concat(addArr);
+    arr.map((item, index) => {
+      if (item.gid == gid) {
+        arr.splice(index, 1);
+      }
+    });
+    setAddArr(arr);
+  };
+  const formSave = async (e: any) => {
     console.log(e);
-  }
-  const save = ()=>{
-    form.submit()
-  }
+    let members: string[] = [];
+    addArr.map((item, index) => {
+      members.push(item.gid as string);
+    });
+    const data = await createUserTag({
+      ...e,
+      members: members,
+    });
+    if (data.code == 1) {
+      message.success('Create Success');
+    }
+  };
+  const save = () => {
+    form.submit();
+  };
+  const onCancel = () => {
+    form.resetFields();
+    setAddArr([]);
+  };
   return (
     <div>
       <PageHeader
@@ -252,16 +336,60 @@ export default function CreateUserTag() {
         subTitle=""
       />
       <ContentCard label="">
-        <ContentForm form={form} formItem={formItem} onFinish={formSave}></ContentForm>
-        <SearchBar search={()=>{}} searchItem={searchBarItem} />
-        <Table className='mt-4' rowKey={'scholarUserId'} columns={tableColums} dataSource={tableData}></Table>
+        {((isUpdated && params.getAll('gid')[0] == groupInfo.gid) ||
+          (params.getAll('gid')[0] == undefined && !groupInfo.gid)) && (
+          <ContentForm
+            initialValues={groupInfo}
+            form={form}
+            formItem={formItem}
+            onFinish={formSave}
+          ></ContentForm>
+        )}
+        <SearchBar search={search} searchItem={searchItem} />
+        <Table
+          rowClassName={'bg-bar-bg text-white bg-card-bg'}
+          rowSelection={rowSelection}
+          className="mt-4"
+          rowKey={'gid'}
+          columns={tableColums}
+          dataSource={addArr}
+          pagination={{
+            pageSize: 10,
+            itemRender: itemRender,
+            total: pageData.amount,
+            onChange: (e) => {
+              pageNum = e;
+              getList();
+            },
+          }}
+        ></Table>
         <div>
-          <Button>cancel</Button>
-          <Button type='primary' className='bg-primary mx-4' onClick={save} htmlType="submit">Save</Button>
+          <Button
+            onClick={onCancel}
+            className=" bg-gray-button px-4 hover: text-white rounded-lg hover:bg-gray-800 hover:text-white focus:bg-gray-800 focus:text-white active:bg-gray-800 active:text-white"
+          >
+            cancel
+          </Button>
+          <Button
+            onClick={save}
+            className="ml-4  border-none rounded-lg bg-purple-button hover:bg-purple-800 focus:bg-purple-800 focus:text-white active:bg-purple-800 active:text-white hover:text-white  text-white"
+          >
+            Save
+          </Button>
         </div>
       </ContentCard>
-      <AddUsers tableData={tableData} setTableData={setTableData} visible={addUserModalVisible} setVisible={setAddUserModalVisible}/>
-      <UploadModal setUploadModalStatus={setUploadModalStatus} uploadModalStatus={uploadModalStatus} title="Mass Upload Accounts" label='Upload a .csv to Upload Accounts'/>
+      <AddUsers
+        addArr={addArr}
+        setAddArr={setAddArr}
+        visible={addUserModalVisible}
+        setVisible={setAddUserModalVisible}
+      />
+      <UploadModal
+        setUploadModalStatus={setUploadModalStatus}
+        uploadModalStatus={uploadModalStatus}
+        title="Mass Upload Accounts"
+        label="Upload a .csv to Upload Accounts"
+      />
     </div>
   );
 }
