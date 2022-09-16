@@ -9,8 +9,8 @@ interface IProps {
 
 export default function ButtonControlBar(props: IProps) {
   return (
-    <section className="w-full flex flex-col md:flex-row justify-center p-4 md:justify-between">
-      <p className="text-md text-gray-400">{props.title}</p>
+    <section className="w-full flex flex-col md:flex-row justify-center py-4 md:justify-between">
+      <div className="text-md text-gray-400">{props.title}</div>
       <div>
         {props.buttonContent.map((item: IButtonItem, index: number) => {
           return (

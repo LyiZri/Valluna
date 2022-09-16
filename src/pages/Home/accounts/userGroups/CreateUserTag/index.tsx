@@ -5,7 +5,8 @@ import { itemRender } from '@/compontents/Layout/PageContaineriTemRender';
 import SearchBar from '@/compontents/Layout/SearchBar';
 import UploadModal from '@/compontents/Profession/UploadModal/index';
 import UserGroups from '@/compontents/User/UserGroupsTag';
-import { getMembersList } from '@/services/members';
+import { groupMassUpload, groupsUpdate } from '@/services/groups';
+import { getUserMembersInfo } from '@/services/members';
 import { createUserTag } from '@/services/scholars';
 import { IFormItem } from '@/types/form';
 import { IUserInfo } from '@/types/user';
@@ -20,6 +21,9 @@ interface DataType extends IUserInfo {}
 export default function CreateUserTag() {
   const [addUserModalVisible, setAddUserModalVisible] = useState(false);
   const [uploadModalStatus, setUploadModalStatus] = useState(false);
+  const [loadingStatus, setLoadingStatus] = useState({
+    save: false,
+  });
   const [form] = Form.useForm();
   const [addArr, setAddArr] = useState<IUserInfo[]>([]);
   const [list, setList] = useState<DataType[]>([]);
@@ -30,7 +34,7 @@ export default function CreateUserTag() {
   });
   let pageNum = 1;
   let searchData = {
-    gid: '',
+    uid: '',
     gname: '',
     email: '',
     groups: [],
@@ -42,28 +46,22 @@ export default function CreateUserTag() {
   useEffect(() => {
     if (params.getAll('gid')[0]) {
       setIsUpdated(true);
-      if (groupInfo.members&&groupInfo.members !== '') {
+      if (groupInfo.members && groupInfo.members !== '') {
         memberGroup = groupInfo.members.split(',');
+        getAddList();
       }
-      setSelectRowKey(memberGroup)
+      setSelectRowKey(memberGroup);
     }
+    return(
+      setAddArr([])
+    )
   }, []);
-  const getList = async () => {
-    
-    const data = await getMembersList({
-      page: pageNum,
-      size: '10',
-      ...searchData,
-    });
-    setPageData({
-      ...pageData,
-      amount: data.data.amount,
-    });
-    setList(data.data.list);
+  const getAddList = async () => {
+    const data = await getUserMembersInfo({ ids: memberGroup });
+    setAddArr(data.data);
   };
   const search = async (values: any) => {
     searchData = values;
-    await getList();
   };
   const onSelectChange = (e: React.Key[]) => {
     setSelectRowKey(e);
@@ -225,13 +223,13 @@ export default function CreateUserTag() {
   const tableColums: ColumnsType<IUserInfo> = [
     {
       title: 'User ID',
-      dataIndex: 'gid',
-      key: 'gid',
+      dataIndex: 'uid',
+      key: 'uid',
     },
     {
       title: 'User Name',
-      dataIndex: 'gname',
-      key: 'gname',
+      dataIndex: 'username',
+      key: 'username',
     },
     {
       title: 'Email',
@@ -308,20 +306,29 @@ export default function CreateUserTag() {
   };
   const formSave = async (e: any) => {
     console.log(e);
+    
     let members: string[] = [];
     addArr.map((item, index) => {
-      members.push(item.gid as string);
+      members.push(item.uid as string);
     });
-    const data = await createUserTag({
-      ...e,
-      members: members,
-    });
-    if (data.code == 1) {
-      message.success('Create Success');
+    if (params.getAll('gid'[0])) {
+      const data = await groupsUpdate({
+        ...e,
+        members: members,
+        gid:params.getAll('gid')[0]
+      });
+      if (data.code == 1) {
+        message.success('Update Success');
+      }
+    } else {
+      const data = await createUserTag({
+        ...e,
+        members: members,
+      });
+      if (data.code == 1) {
+        message.success('Create Success');
+      }
     }
-  };
-  const save = () => {
-    form.submit();
   };
   const onCancel = () => {
     form.resetFields();
@@ -345,12 +352,13 @@ export default function CreateUserTag() {
             onFinish={formSave}
           ></ContentForm>
         )}
+        {(!isUpdated || groupInfo.num == 0 ||(addArr.length!=0)) && <>
         <SearchBar search={search} searchItem={searchItem} />
         <Table
           rowClassName={'bg-bar-bg text-white bg-card-bg'}
           rowSelection={rowSelection}
           className="mt-4"
-          rowKey={'gid'}
+          rowKey={'uid'}
           columns={tableColums}
           dataSource={addArr}
           pagination={{
@@ -359,10 +367,12 @@ export default function CreateUserTag() {
             total: pageData.amount,
             onChange: (e) => {
               pageNum = e;
-              getList();
+              getAddList();
             },
           }}
-        ></Table>
+          ></Table>
+          </>
+          }
         <div>
           <Button
             onClick={onCancel}
@@ -371,7 +381,8 @@ export default function CreateUserTag() {
             cancel
           </Button>
           <Button
-            onClick={save}
+            loading={loadingStatus.save}
+            onClick={() => form.submit()}
             className="ml-4  border-none rounded-lg bg-purple-button hover:bg-purple-800 focus:bg-purple-800 focus:text-white active:bg-purple-800 active:text-white hover:text-white  text-white"
           >
             Save
@@ -389,6 +400,12 @@ export default function CreateUserTag() {
         uploadModalStatus={uploadModalStatus}
         title="Mass Upload Accounts"
         label="Upload a .csv to Upload Accounts"
+        uploadFunction={groupMassUpload}
+        templateValue={[
+          ['User Group ID*,User ID,Scholar ID'],
+          ['1', '3', ''],
+          ['2', '', '4'],
+        ]}
       />
     </div>
   );

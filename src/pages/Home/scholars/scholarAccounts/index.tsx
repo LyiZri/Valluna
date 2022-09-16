@@ -53,7 +53,6 @@ export default function Accounts() {
     inputRef.click();
   };
   const getFile = async (e: any) => {
-    console.log(e);
     inputfile = e;
     setFileValue(e);
   };
@@ -465,7 +464,7 @@ export default function Accounts() {
     if (data.code == 1) {
       confirmClick(
         true,
-        <div>
+        <div className='text-center'>
           <p className="text-white text-2xl mb-16">success</p>
           <p className="text-gray-500 text-lg mb-100">
             Scholar Account lD ({sid}) has been deleted{' '}

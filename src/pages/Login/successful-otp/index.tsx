@@ -5,7 +5,7 @@ import { history } from '@umijs/max';
 export default function SuccessfulOTP() {
   useEffect(() => {
     setTimeout(() => {
-      history.push("/login");
+      history.push("/login/login-page");
     }, 3000);
   });
   return (

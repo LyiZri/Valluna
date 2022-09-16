@@ -1,7 +1,7 @@
 import IconFont from '@/compontents/Layout/IconFont';
 import { IFormItem } from '@/types/form';
 import { searchStatusData, userGroupsData } from '@/types/user';
-import { Button, Col, Form, Input, Row, Select, Tag } from 'antd';
+import { Button, Form, Input, Select, Tag } from 'antd';
 import React from 'react';
 interface IProps {
   search: Function;
@@ -33,107 +33,104 @@ export default function searchBar(props: IProps) {
     <div>
       <Form
         name="advanced_search"
-        className="ant-advanced-search-form"
+        className="ant-advanced-search-form flex justify-between"
         form={form}
         onFinish={(e) => {
           props.search(e);
         }}
       >
-        <Row gutter={24}>
-          {props.searchItem.map((item, index) => {
-            if (item.render) {
-              return (
-                <Form.Item
-                  key={index}
-                  name={item.name}
-                  label={item.label}
-                  className={'text-white'}
-                  rules={[{ required: item.require }]}
-                >
-                  {item.render}
-                </Form.Item>
-              );
-            } else if (item.type === 'input') {
-              return (
-                <Col span={item.col} key={item.name}>
-                  <Form.Item name={item.name}>
-                    <Input
-                      className="mb-4 bg-input-content text-white rounded-lg"
-                      value={item.value as string}
-                      placeholder={item.placeholder}
-                    />
-                  </Form.Item>
-                </Col>
-              );
-            } else if (item.type == 'groups-select') {
-              return (
-                <Col span={item.col} key={item.name}>
-                  <Form.Item
-                    key={item.name}
-                    name={item.name}
-                    label={item.label}
-                    rules={[{ required: item.require }]}
-                  >
-                    <Select
-                      placeholder={item.placeholder}
-                      className="bg-input-content rounded-lg"
-                      dropdownClassName={'text-white'}
-                      mode="multiple"
-                      tagRender={tagRender}
-                      options={userGroupsData}
-                    ></Select>
-                  </Form.Item>
-                </Col>
-              );
-            } else if (item.type == 'status-groups') {
-              return (
-                <Col span={item.col} key={item.name}>
-                  <Form.Item
-                    key={item.name}
-                    name={item.name}
-                    label={item.label}
-                    rules={[{ required: item.require }]}
-                  >
-                    <Select
-                      placeholder={item.placeholder}
-                      className="bg-input-content rounded-lg"
-                      dropdownClassName={'text-white'}
-                      mode="multiple"
-                      options={searchStatusData}
-                    ></Select>
-                  </Form.Item>
-                </Col>
-              );
-            } else if (item.type == 'link-reset') {
-              return (
-                <Col span={item.col} key={item.icon}>
-                  <Button type="link" htmlType="reset">
-                    <IconFont
-                      type={item.icon as string}
-                      className="cursor-pointer text-white text-2xl"
-                      onClick={() => {
-                        () => form.resetFields([]);
-                      }}
-                    ></IconFont>
-                  </Button>
-                </Col>
-              );
-            } else if (item.type == 'link-submit') {
-              return (
-                <Col span={item.col} key={item.icon}>
-                  <Button type="link" htmlType="submit">
-                    <IconFont
-                      type={item.icon as string}
-                      className="cursor-pointer text-white text-2xl"
-                    ></IconFont>
-                  </Button>
-                </Col>
-              );
-            } else if (item.type == 'col') {
-              return <Col span={item.col} key={item.name}></Col>;
-            }
-          })}
-        </Row>
+        <div className='flex'>
+        {props.searchItem.map((item, index) => {
+          if (item.type === 'input') {
+            return (
+              <Form.Item  key={item.name} name={item.name}>
+                <Input
+                  className=" bg-input-content text-white rounded-lg w-32 mr-4"
+                  value={item.value as string}
+                  placeholder={item.placeholder}
+                />
+              </Form.Item>
+            );
+          } else if (item.type == 'groups-select') {
+            return (
+              <Form.Item
+                key={item.name}
+                name={item.name}
+                label={item.label}
+                rules={[{ required: item.require }]}
+              >
+                <Select
+                  placeholder={item.placeholder}
+                  className="bg-input-content  mr-4 rounded-lg !w-32"
+                  dropdownClassName={'text-white'}
+                  mode="multiple"
+                  tagRender={tagRender}
+                  options={userGroupsData}
+                ></Select>
+              </Form.Item>
+            );
+          } else if (item.type == 'status-groups') {
+            return (
+              <Form.Item
+                key={item.name}
+                name={item.name}
+                label={item.label}
+                rules={[{ required: item.require }]}
+              >
+                <Select
+                  placeholder={item.placeholder}
+                  className="bg-input-content mr-4 rounded-lg !w-32"
+                  dropdownClassName={'text-white'}
+                  mode="multiple"
+                  options={searchStatusData}
+                ></Select>
+              </Form.Item>
+            );
+          }
+        })}
+        </div>
+        <div className='flex'>
+        {props.searchItem.map((item, index) => {
+          if (item.type == 'link-reset') {
+            return (
+              <Button key={index} type="link" htmlType="reset" className='px-1'>
+                <div className='px-1 rounded bg-gray-500'>
+                <IconFont
+                  type={item.icon as string}
+                  className="cursor-pointer text-white text-xl"
+                  onClick={() => {
+                    () => form.resetFields([]);
+                  }}
+                  ></IconFont>
+                  </div>
+              </Button>
+            );
+          } else if (item.type == 'link-submit') {
+            return (
+              <Button key={index} type="link" htmlType="submit" className='px-1'>
+                <div className='px-1 rounded bg-gray-500'>
+                <IconFont
+                  type={item.icon as string}
+                  className="cursor-pointer text-white text-xl"
+                  ></IconFont>
+                  </div>
+              </Button>
+            );
+          } else if (item.render) {
+            return (
+              <Form.Item
+                key={index}
+                name={item.name}
+                label={item.label}
+                className={'text-white'}
+                rules={[{ required: item.require }]}
+              >
+                {item.render}
+              </Form.Item>
+            );
+          }
+        })}
+        </div>
       </Form>
     </div>
   );

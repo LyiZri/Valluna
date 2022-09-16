@@ -5,7 +5,7 @@ import LoginCard from "@/compontents/Layout/LoginCard";
 export default function SuccessfulReset() {
   useEffect(() => {
     setTimeout(() => {
-      history.push("/login");
+      history.push("/login/login-page");
     }, 3000);
   });
   return (

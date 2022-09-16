@@ -1,27 +1,27 @@
+import  ContentEmpty  from '@/compontents/Layout/ContentEmpty';
+import { itemRender } from '@/compontents/Layout/PageContaineriTemRender';
 import SearchBar from '@/compontents/Layout/SearchBar';
+import UserGroups from '@/compontents/User/UserGroupsTag';
 import { getMembersList } from '@/services/members';
 import { IFormItem } from '@/types/form';
 import { IUserInfo } from '@/types/user';
 import { downloadCsv } from '@/utils/downloadFile';
 import { timestampToTime } from '@/utils/format';
 import { useModel } from '@umijs/max';
-import { Button, PaginationProps, Space, Table } from 'antd';
+import { Button, Space, Table } from 'antd';
 import { ColumnsType } from 'antd/lib/table';
 import { useEffect, useState } from 'react';
 import { history } from 'umi';
-import UserGroups from '@/compontents/User/UserGroupsTag';
-import  IconFont  from '@/compontents/Layout/IconFont';
-import {itemRender} from '@/compontents/Layout/PageContaineriTemRender'
 
 interface DataType extends IUserInfo {}
 
 export default function Accounts() {
   const [list, setList] = useState<DataType[]>([]);
-  let [pageData,setPageData] = useState({
-    size:10,
+  let [pageData, setPageData] = useState({
+    size: 10,
     amount: 10,
   });
-  let pageNum = 1
+  let pageNum = 1;
   let searchData = {
     uid: '',
     username: '',
@@ -52,25 +52,25 @@ export default function Accounts() {
       name: 'uid',
       type: 'input',
       col: 3,
-      placeholder:'User ID'
+      placeholder: 'User ID',
     },
     {
       name: 'username',
       type: 'input',
       col: 3,
-      placeholder:'User Name'
+      placeholder: 'User Name',
     },
     {
       name: 'email',
       type: 'input',
       col: 3,
-      placeholder:'Email'
+      placeholder: 'Email',
     },
     {
       name: 'groups',
       type: 'groups-select',
-      col: 8,
-      placeholder:'Groups'
+      col: 3,
+      placeholder: 'Groups',
     },
     {
       name: '',
@@ -85,9 +85,9 @@ export default function Accounts() {
       icon: 'icon-chazhao',
     },
     {
-      name:'col',
-      type:'col',
-      col:3
+      name: 'col',
+      type: 'col',
+      col: 3,
     },
     {
       name: '',
@@ -235,8 +235,8 @@ export default function Accounts() {
       });
       setPageData({
         ...pageData,
-        amount:data.data.amount
-      })
+        amount: data.data.amount,
+      });
       setList(data.data.list);
     } catch (error) {}
     setloading(false);
@@ -246,30 +246,36 @@ export default function Accounts() {
       getList();
     })();
   }, []);
+
   return (
     <div className="mt-10  mr-10">
+      <h1 className="text-white text-2xl mb-2 font-semibold">
+        Valluna Member Accounts
+      </h1>
       <h3 className="text-gray-400 mb-5">
         This portal displays all current Vallna Member Accounts
       </h3>
       <SearchBar search={search} searchItem={searchItem} />
-      <Table
-        rowClassName={'bg-bar-bg text-white bg-card-bg'}
-        loading={loading}
-        rowSelection={rowSelection}
-        rowKey={'uid'}
-        columns={colums}
-        dataSource={list}
-        scroll={{ x: 1000 }}
-        pagination={{
-          pageSize: 10,
-          itemRender:itemRender,
-          total: pageData.amount,
-          onChange: (e) => {
-            pageNum = e
-            getList();
-          },
-        }}
-      ></Table>
+      <ContentEmpty>
+        <Table
+          rowClassName={'bg-bar-bg text-white bg-card-bg'}
+          loading={loading}
+          rowSelection={rowSelection}
+          rowKey={'uid'}
+          columns={colums}
+          dataSource={list}
+          scroll={{ x: 1000 }}
+          pagination={{
+            pageSize: 10,
+            itemRender: itemRender,
+            total: pageData.amount,
+            onChange: (e) => {
+              pageNum = e;
+              getList();
+            },
+          }}
+        />
+      </ContentEmpty>
     </div>
   );
 }

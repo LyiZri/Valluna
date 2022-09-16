@@ -50,7 +50,7 @@ export default function headerBar(props: IProps) {
   return (
     <div className="flex flex-wrap justify-between mb-3 pt-10">
       <div>
-        <p className="text-2xl text-white mb-3">Scholar Account Overview</p>
+      <h1 className='text-white text-2xl mb-2 font-semibold'>Scholar Account Overview</h1>
         <p className="text-md text-gray-400">
           Manage Scholar accounts owned by the Guild <br />
           Create and view Scholar Accounts

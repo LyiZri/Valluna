@@ -19,3 +19,9 @@ export async function memberUpdata(data:any){
     data:requestDataWrap(data)
   })
 }
+export async function getUserMembersInfo(data:any){
+  return request("/api/members",{
+    method:"POST",
+    data:requestDataWrap(data)
+  })
+}
