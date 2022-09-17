@@ -91,6 +91,7 @@ export default function CreateUserTag() {
       require: true,
       value: 2,
       type: 'radio',
+      requireMsg:"Please choice",
       selectOption: [
         { value: 1, text: 'Member Account' },
         { value: 2, text: 'Scholar Account' },
@@ -311,7 +312,8 @@ export default function CreateUserTag() {
     addArr.map((item, index) => {
       members.push(item.uid as string);
     });
-    if (params.getAll('gid'[0])) {
+    console.log(params.getAll("gid")[0]);
+    if (params.getAll('gid')[0]) {
       const data = await groupsUpdate({
         ...e,
         members: members,
@@ -336,11 +338,12 @@ export default function CreateUserTag() {
   };
   return (
     <div>
-      <PageHeader
+       <PageHeader
         className="site-page-header"
         onBack={() => history.back()}
-        title="Create New User Tag"
-        subTitle=""
+        backIcon={<IconFont type='icon-a-houtuifanhui' className='text-5xl text-purple-500'></IconFont>}
+        subTitle={<p className='text-2xl text-white'>Create New User Tag
+          </p>}
       />
       <ContentCard label="">
         {((isUpdated && params.getAll('gid')[0] == groupInfo.gid) ||

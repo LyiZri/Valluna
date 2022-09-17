@@ -10,6 +10,6 @@ export default function index(props:any) {
   return (
     <ConfigProvider renderEmpty={renderEmpty}>
         {props.children}
-    </ConfigProvider>
+    </ConfigProvider>  
   )
 }

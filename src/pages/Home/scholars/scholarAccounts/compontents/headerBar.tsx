@@ -47,6 +47,18 @@ export default function headerBar(props: IProps) {
       </div>,
     );
   };
+  const unlinkMass = () =>{
+    props.modalClickItem(
+      {},
+      true,
+      'massunlink',
+      'file',
+      <div className="text-center">
+        <p className="text-white text-2xl mb-6"> Mass Unlink Scholar Accounts </p>
+        <p className='text-white text-xl mb-6'>Upload a .csv to unlink multiple Scholar Accounts.</p>
+      </div>,
+    );
+  }
   return (
     <div className="flex flex-wrap justify-between mb-3 pt-10">
       <div>
@@ -82,6 +94,13 @@ export default function headerBar(props: IProps) {
           onClick={linkMass}
         >
           Mass Link
+        </Button>
+        <Button
+          size="large"
+          className="ml-4 px-4 border-none rounded-lg bg-purple-button hover:bg-purple-800 focus:bg-purple-800 focus:text-white active:bg-purple-800 active:text-white hover:text-white  text-white"
+          onClick={unlinkMass}
+        >
+          Mass UnLink
         </Button>
       </div>
     </div>

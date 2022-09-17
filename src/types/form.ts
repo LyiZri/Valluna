@@ -1,5 +1,3 @@
-
-
 declare const ButtonTypes : ["primary","default"]
 export declare type ButtonType  = typeof ButtonTypes[number]
 export interface IFormItem{
@@ -15,6 +13,10 @@ export interface IFormItem{
     col?:number
     icon?:string
     disabled?:boolean
+    className?:string
+    requireMsg?:string
+    validator?:any
+
 }
 export interface ISelectOption{
     value:string|number,

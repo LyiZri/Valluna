@@ -6,6 +6,7 @@ import {
   getScholarsInfoList,
   massCreateScholar,
   massLinkScholar,
+  massUnLinkScholar,
   massUploadFile,
   unLinkScholarItem,
 } from '@/services/scholars';
@@ -532,9 +533,14 @@ export default function Accounts() {
     try {
       const data = await massUploadFile(fileValue);
       let res:any
-      modalStatus.title == 'masscreate'?
-       res = await massCreateScholar({ filename: data.data.file_name }):
-       res = await massLinkScholar({ filename: data.data.file_name })
+      if(modalStatus.title == "masscreate"){
+        
+        res = await massCreateScholar({ filename: data.data.file_name })
+      }else if(modalStatus.title=="masslink"){
+        res = await massLinkScholar({ filename: data.data.file_name })
+      }else if(modalStatus.title == "massunlink"){
+        res = await massUnLinkScholar({filename:data.data.file_name})
+      }
     if (data) {
       confirmClick(
         true,
@@ -583,15 +589,33 @@ export default function Accounts() {
     setStepNum(1);
     await getList()
   };
-  const downloadTemplate =() =>{
-    apiDownloadCsv('Template',[[
-      "Scholar ID",
-      "User ID",
-  ],
-  [
-      "xxx",
-      "xxx",
-  ],])
+  const downloadTemplate =(type:string) =>{
+    if(type == "masscreate"){
+      apiDownloadCsv('Template',[[
+        "Scholar Name*",
+        "Game*",
+        "Wallet Address*",
+        "Email*",
+        "Email Password*",
+        "User ID",
+      ],[
+        "A",
+        "Axie",
+        "xxx",
+        "xxx",
+        "xxx",
+        ""
+      ]])
+    }else{
+      apiDownloadCsv('Template',[[
+        "Scholar ID",
+        "User ID",
+      ],
+      [
+        "xxx",
+        "xxx",
+      ],])
+    }
   }
   return (
     <div>
@@ -672,7 +696,7 @@ export default function Accounts() {
                   </div>
                 </div>
                 <div className="mx-16 mt-12 flex justify-between">
-                  <Button onClick={downloadTemplate} className=" bg-gray-button px-4 hover: text-white rounded-lg hover:bg-gray-800 hover:text-white focus:bg-gray-800 focus:text-white active:bg-gray-800 active:text-white">
+                  <Button onClick={()=>downloadTemplate(modalStatus.title)} className=" bg-gray-button px-4 hover: text-white rounded-lg hover:bg-gray-800 hover:text-white focus:bg-gray-800 focus:text-white active:bg-gray-800 active:text-white">
                     Download Template
                   </Button>
                   <Button

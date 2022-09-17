@@ -44,6 +44,12 @@ export async function massLinkScholar(data:any){
     data:requestDataWrap(data)
   })
 }
+export async function massUnLinkScholar(data:any){
+  return request("/api/scholars/massunlink",{
+    method:"POST",
+    data:requestDataWrap(data)
+  })
+}
 export async function massUploadFile(data:any){
   return request("/api/massupload",{
     method:"POST",

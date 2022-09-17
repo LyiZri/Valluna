@@ -16,6 +16,10 @@ import LanguageAdd from './compontents/languageAdd';
 import { Modal } from 'antd';
 import PasswordUpdate from './compontents/passwordUpdate';
 import  IconFont  from '@/compontents/Layout/IconFont';
+import { countryValid, emialVaild, usernameVaild } from '@/utils/vaildation';
+import { getCountryName } from '../../../../utils/format';
+import { useEffect } from 'react';
+import { getUserInfo } from '@/utils/user';
 
 export default function accountDetails() {
   const {
@@ -55,7 +59,7 @@ export default function accountDetails() {
     });
   };
   const onSave = async (e: IUserInfo) => {
-    console.log(accountsInfoLanguageData);
+    console.log(accountsInfoLanguageData,e);
     const saveData: IUserInfo = {
       ...accountsInfoData,
       ...e,
@@ -64,8 +68,8 @@ export default function accountDetails() {
     setLoading(true);
     try {
       const data = await memberUpdata(saveData);
+      setLoading(false);
       if (data.code == 1) {
-        setLoading(false);
         message.success('success');
         localStorage.setItem('valluna.user-info', JSON.stringify(data.data));
       }
@@ -81,13 +85,14 @@ export default function accountDetails() {
       value: formValue.uid,
       require: false,
       type: 'input',
-      disabled: isDisabled,
+      disabled: true,
     },
     {
       name: 'username',
       label: 'Username',
       value: formValue.username,
-      require: false,
+      require: !isDisabled,
+      validator:usernameVaild,
       type: 'input',
       disabled: isDisabled,
     },
@@ -95,7 +100,8 @@ export default function accountDetails() {
       name: 'email',
       label: 'Email',
       value: formValue.email,
-      require: false,
+      require: !isDisabled,
+      validator:emialVaild,
       type: 'input',
       disabled: isDisabled,
     },
@@ -119,8 +125,9 @@ export default function accountDetails() {
       name: 'country',
       label: 'Country',
       value: formValue.country,
-      require: false,
-      type: 'input',
+      require: !isDisabled,
+      validator:countryValid,
+      type: 'country',
       disabled: isDisabled,
     },
     {
@@ -149,7 +156,7 @@ export default function accountDetails() {
         <div>
           <LanguageAdd isDisabled={isDisabled}/>
           <Button
-            className={`border-none rounded-lg text-white bg-purple-button hover:bg-purple-800 hover:text-white ${isDisabled?'hidden':''}`}
+          className={`ml-4 px-4 border-none rounded-lg bg-purple-button hover:bg-purple-800 focus:bg-purple-800 focus:text-white active:bg-purple-800 active:text-white hover:text-white  text-white ${isDisabled?'hidden':''}`}
             onClick={addLanguage}
           >
             +Add
@@ -184,34 +191,44 @@ export default function accountDetails() {
       <PageHeader
         className="site-page-header"
         onBack={() => history.back()}
-        title="Title"
-        subTitle="This is a subtitle"
+        backIcon={<IconFont type='icon-a-houtuifanhui' className='text-5xl text-purple-500'></IconFont>}
+        subTitle={<p className='text-2xl text-white'>lndividual Account User lD : {isDisabled?accountsInfoData.uid:getUserInfo().uid}
+          </p>}
       />
       <ContentCard label="Basic Infomation">
+        { 
+          ((params.getAll("uid")[0] == accountsInfoData.uid) || (!isDisabled)) &&
         <ContentForm
-          initialValues={accountsInfoData}
-          onFinish={onSave}
-          formItem={item}
-          form={form}
+        initialValues={
+          isDisabled?{
+          ...accountsInfoData,country:getCountryName(accountsInfoData.country as string)
+        }:{
+          ...getUserInfo(),
+          country:getCountryName(accountsInfoData.country as string)
+        }}
+        onFinish={onSave}
+        formItem={item}
+        form={form}
         >
           {!isDisabled && (
             <div>
               <Button
                 onClick={reset}
                 className=" bg-gray-button px-4 hover: text-white rounded-lg hover:bg-gray-800 hover:text-white focus:bg-gray-800 focus:text-white active:bg-gray-800 active:text-white"
-              >
+                >
                 Cancel
               </Button>
               <Button
                 loading={loading}
                 htmlType="submit"
                 className="ml-4 px-4 border-none rounded-lg bg-purple-button hover:bg-purple-800 focus:bg-purple-800 focus:text-white active:bg-purple-800 active:text-white hover:text-white  text-white"
-              >
+                >
                 Save
               </Button>
             </div>
           )}
         </ContentForm>
+        }
       </ContentCard>
       {
         !isDisabled && (
@@ -255,7 +272,7 @@ export default function accountDetails() {
           }
         })}
       </ContentCard>
-      <Modal closeIcon={<IconFont type='icon-close' className='text-xl'></IconFont>} visible={modalStatus} className="bg-card-bg" footer={null}>
+      <Modal onCancel={()=>{setModalStatus(!modalStatus)}} width={432} closeIcon={<IconFont type='icon-close' className='text-xl'></IconFont>} visible={modalStatus} className="bg-card-bg" footer={null}>
         <PasswordUpdate modalStatus={modalStatus} setModalStatus={setModalStatus}></PasswordUpdate>
       </Modal>
     </div>

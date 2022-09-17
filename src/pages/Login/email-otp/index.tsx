@@ -8,7 +8,9 @@ import {
 import { Button, Input, message } from 'antd';
 import { useEffect, useState } from 'react';
 import { history, useSearchParams } from 'umi';
-import { emailOTPVaild } from '../../../utils/vaildation';
+import { emailOTPVaild, OTPValid } from '../../../utils/vaildation';
+import  ContentForm from '@/compontents/Layout/ContentForm';
+import { IFormItem } from '@/types/form';
 
 const EmailOtp = () => {
   const [emailBind, setEmailBind] = useState(0);
@@ -18,11 +20,8 @@ const EmailOtp = () => {
     submitLoad: false,
     resendLoad: false,
   });
-  const submitCode = async () => {
-    if (emailOTPVaild(emailCode)) {
-      setEmailBind(1);
-
-      if (params.getAll('type').toString() == 'reset') {
+  const submitCode = async (e:any) => {
+      if (params.getAll('type')[0] == 'reset') {
         setLoading({
           ...loading,
           submitLoad: true,
@@ -30,7 +29,7 @@ const EmailOtp = () => {
         try {
           const data = await AResetPasswordVerifyOPT({
             email: params.getAll('email')[0],
-            opt: emailCode,
+            ...e
           });
 
           setLoading({
@@ -41,7 +40,7 @@ const EmailOtp = () => {
             history.push(
               `/login/reset-password?email=${
                 params.getAll('email')[0]
-              }&opt=${emailCode}`,
+              }&opt=${e.opt}`,
             );
           }
         } catch (error:any) {
@@ -57,13 +56,14 @@ const EmailOtp = () => {
           submitLoad: true,
         });
         try {
-            
-        
         const data = await ARegisterOTP({
           email: params.getAll('email')[0],
-          opt: emailCode,
+          ...e
         });
-        
+        setLoading({
+          ...loading,
+          submitLoad:false
+        })
         if (data.code == 1) {
           history.push('/login/successful-otp');
         }
@@ -75,9 +75,6 @@ const EmailOtp = () => {
           message.error(error?error:'please try again')   
     }
       }
-    } else {
-      setEmailBind(2);
-    }
   };
   const resendOtp = async () => {
     setLoading({
@@ -95,6 +92,17 @@ const EmailOtp = () => {
       resendLoad: false,
     });
   };
+  const formItem:IFormItem[] = [
+    {
+      name:'opt',
+      require:true,
+      validator:OTPValid,
+      placeholder:"Email OTP Code",
+      value:"",
+      type:"input",
+      className:"mt-5 bg-input-content text-white w-96 rounded",
+    }
+  ]
   useEffect(() => {}, []);
   const lableValue = () => {
     if (emailBind == 2) {
@@ -115,48 +123,27 @@ const EmailOtp = () => {
             email:{' '}
             <span className="text-purple-500">{params.getAll('email')[0]}</span>
           </p>
-          <Input
-            className="bm-5 bg-input-content text-white w-full rounded"
-            placeholder="Email OTP Code"
-            value={emailCode}
-            onChange={(e: any) => {
-              setEmailCode(e.target.value);
-              if (e.target.value.length == 6) {
-                if (emailOTPVaild(e.target.value)) {
-                  setEmailBind(1);
-                } else {
-                  setEmailBind(2);
-                }
-              } else {
-                setEmailBind(0);
-              }
-            }}
-          />
-          {emailBind != 0 ? (
-            emailBind == 1 ? (
-              <VaildPropmt.Success text="success"></VaildPropmt.Success>
-            ) : (
-              <VaildPropmt.Wrong text="wrong"></VaildPropmt.Wrong>
-            )
-          ) : (
-            <></>
-          )}
+          <ContentForm
+          formItem={formItem}
+          onFinish={submitCode}
+          >
           <div className="flex justify-between mt-12">
             <Button
               loading={loading.submitLoad}
               className="rounded-sm bg-primary-button px-4 text-white"
-              onClick={submitCode}
-            >
+              htmlType='submit'
+              >
               Submit OTP
             </Button>
             <Button
               loading={loading.resendLoad}
               className="rounded-sm bg-gray-button px-4 text-white"
               onClick={resendOtp}
-            >
+              >
               Resend OTP
             </Button>
           </div>
+              </ContentForm>
         </div>
       </div>
     </LoginCard>

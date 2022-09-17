@@ -9,6 +9,7 @@ import { Button, message } from 'antd';
 import { TableRowSelection } from 'antd/es/table/interface';
 import Table, { ColumnsType } from 'antd/lib/table';
 import React, { useEffect, useState } from 'react';
+import { getCountryName } from '../../../../../utils/format';
 interface DataType extends IUserInfo {}
 interface IProps {
   memberUserId: string;
@@ -188,7 +189,7 @@ export default function linkTable({ memberUserId }: IProps) {
       key: 'country',
       render: (_, { country }) => {
         if (country) {
-          return <p>{country}</p>;
+          return <p>{getCountryName(country)}</p>;
         } else {
           return <>-</>;
         }

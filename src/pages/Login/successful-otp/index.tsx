@@ -1,6 +1,5 @@
 import React, { useEffect } from 'react'
 import SuccessPage from '@/compontents/Profession/SuccessfulPage'
-import LoginCard from '@/compontents/Layout/LoginCard'
 import { history } from '@umijs/max';
 export default function SuccessfulOTP() {
   useEffect(() => {
@@ -9,8 +8,10 @@ export default function SuccessfulOTP() {
     }, 3000);
   });
   return (
-    <LoginCard>
+<div className="h-full w-full flex flex-col justify-center">
+      <div className='w-full text-center'>
         <SuccessPage text='Welcome to Valluna,you are being redirected'/>
-    </LoginCard>
+      </div>
+</div>
   )
 }

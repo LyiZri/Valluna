@@ -1,8 +1,10 @@
 import ContentCard from '@/compontents/Layout/ContentCard';
 import ContentForm from '@/compontents/Layout/ContentForm/index';
+import IconFont from '@/compontents/Layout/IconFont';
 import { createScholar, getScholarInfo } from '@/services/scholars';
 import { IFormItem } from '@/types/form';
 import { gameData } from '@/types/user';
+import { emialVaild, raddressVaild, passwordVaild } from '@/utils/vaildation';
 import { useSearchParams, useModel } from '@umijs/max';
 import { Button, message, PageHeader } from 'antd';
 import { useEffect, useState } from 'react';
@@ -50,6 +52,7 @@ export default function createNewScholarAccount() {
       require: true,
       value: scholarInfo.raddress,
       type: 'input',
+      validator:raddressVaild,
       placeholder: 'Wallet Address',
     },
     {
@@ -58,6 +61,7 @@ export default function createNewScholarAccount() {
       require: true,
       value: scholarInfo.email,
       type: 'input',
+      validator:emialVaild,
       placeholder: 'Email',
     },
     {
@@ -66,6 +70,7 @@ export default function createNewScholarAccount() {
       require: true,
       value: scholarInfo.password,
       type: 'password',
+      validator:passwordVaild,
       placeholder: 'Email Password',
     },
     {
@@ -92,8 +97,9 @@ export default function createNewScholarAccount() {
       <PageHeader
         className="site-page-header"
         onBack={() => history.back()}
-        title="Create New Scholar Account"
-        subTitle=""
+        backIcon={<IconFont type='icon-a-houtuifanhui' className='text-5xl text-purple-500'></IconFont>}
+        subTitle={<p className='text-2xl text-white'>{isUpdated?`Scholar Account:${scholarInfo.sid}`:"Create New Scholar Account"}
+          </p>}
       />
       <ContentCard label="">
         {(isUpdated && scholarInfo.sid) && (

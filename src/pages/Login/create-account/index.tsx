@@ -12,6 +12,9 @@ import {
   reEnterPasswordVaild,
   usernameVaild,
 } from '../../../utils/vaildation';
+import ContentForm from '@/compontents/Layout/ContentForm';
+import { IFormItem } from '@/types/form';
+import { useForm } from 'antd/es/form/Form';
 interface formItemType {
   value: string;
   validBind: number;
@@ -23,148 +26,111 @@ interface formItemType {
 export default function CreateAccount() {
   //form vaildation rules
   //default:0,right:1,wrong:2
+  const [form] = useForm()
   const [vaildState, setVaildState] = useState({
     userNameVaild: 0,
     emailVaild: 0,
     passwordVaild: 0,
-    reEnterPasswordVaild: 0,
+    repassword: 0,
   });
-  const [formValues, setFormValues] = useState({
+  const [formValue, setFormValue] = useState({
     username: '',
     email: '',
     password: '',
-    reenterPassword: '',
+    repassword: '',
     country: 1,
   });
   const [loading, setLoading] = useState(false);
   //Perform from vaildation
-  const submitNext = async () => {
-    let isPassVaildation = 1;
-    let vaildStateCopy = { ...vaildState };
-    if (usernameVaild(formValues.username)) {
-      vaildStateCopy.userNameVaild = 1;
-    } else {
-      vaildStateCopy.userNameVaild = 2;
-      isPassVaildation = 0;
-    }
-    if (emialVaild(formValues.email)) {
-      vaildStateCopy.emailVaild = 1;
-    } else {
-      vaildStateCopy.emailVaild = 2;
-      isPassVaildation = 0;
-    }
-    if (passwordVaild(formValues.password)) {
-      vaildStateCopy.passwordVaild = 1;
-    } else {
-      vaildStateCopy.passwordVaild = 2;
-      isPassVaildation = 0;
-    }
-    if (reEnterPasswordVaild(formValues.password, formValues.reenterPassword)) {
-      vaildStateCopy.reEnterPasswordVaild = 1;
-    } else {
-      vaildStateCopy.reEnterPasswordVaild = 2;
-      isPassVaildation = 0;
-    }
-    setVaildState(vaildStateCopy);
-    console.log(isPassVaildation);
-
-    if (isPassVaildation == 1) {
-      setFormValues({
-        username: '',
-        email: '',
-        password: '',
-        reenterPassword: '',
-        country: 1,
-      });
-      setVaildState({
-        userNameVaild: 0,
-        emailVaild: 0,
-        passwordVaild: 0,
-        reEnterPasswordVaild: 0,
-      });
-      setLoading(true);
-      try {
-        const data = await ARegister({
-          ...formValues,
+  const submitNext = async (e:any) => {
+    setLoading(true);
+    try {;
+      const data = await ARegister(e);
+      setLoading(false);
+      if (data.code == 1) {
+        history.push(`/login/email-otp?email=${e.email}`);
+        setFormValue({
+          username: '',
+          email: '',
+          password: '',
+          repassword: '',
+          country: 1,
         });
-        setLoading(false);
-        if (data.code == 1) {
-          history.push(`/login/email-otp?email=${formValues.email}`);
         }
       } catch (error:any) {
         setLoading(false);
         message.error(error?error:'pleas try again')
       }
-    }
   };
-  //   const
-  const inputItem: formItemType[] = [
+  const item: IFormItem[] = [
     {
-      value: formValues.username,
-      validBind: vaildState.userNameVaild,
-      placeholderText: 'UserName',
-      inputType: '',
-      valueName: 'username',
+      name: 'username',
+      label: '',
+      value: formValue.username,
+      require: true,
+      requireMsg:"",
+      type: 'input',
+      placeholder:'Username',
+      className:"w-96"
     },
     {
-      value: formValues.email,
-      validBind: vaildState.emailVaild,
-      placeholderText: 'Email',
-      inputType: '',
-      valueName: 'email',
+      name: 'email',
+      label: '',
+      require:true,
+      validator: emialVaild,
+      type: 'input',
+      placeholder:"Email",
+      className:"w-96"
     },
     {
-      value: formValues.password,
-      validBind: vaildState.passwordVaild,
-      placeholderText: 'Password',
-      inputType: 'password',
-      valueName: 'password',
+      name: 'password',
+      label: '',
+      require: true,
+      validator: passwordVaild,
+      type: 'password',
+      placeholder:"New Password",
+      className:"w-96"
     },
     {
-      value: formValues.reenterPassword,
-      validBind: vaildState.reEnterPasswordVaild,
-      placeholderText: 'Re-enter Password',
-      inputType: 'password',
-      valueName: 'reenterPassword',
+      name: 'repassword',
+      label: '',
+      requireMsg: 'Passwords do not match',
+      require: true,
+      type: 'repassword',
+      placeholder: 'Re-enter Password',
+      className: 'w-96',
     },
+    {
+      name:'country',
+      label:'',
+      value:formValue.country,
+      require:true,
+      requireMsg:"",
+      type:"country",
+      className:"!w-96"
+    }
   ];
   return (
     <LoginCard>
       <div className="text-white text-center w-96">
         <h2 className="text-xl text-white mb-12">Create an Account </h2>
-        <Form
-          formItem={inputItem}
-          formValueState={formValues}
-          changeStateFunc={setFormValues}
-          className={'h-1/2'}
+        <ContentForm
+        form={form}
+          formItem={item}
+          onFinish={submitNext}
         >
-          <div className="mb-3">
-            <Select
-              placeholder="Country"
-              className="text-left"
-              style={{ width: '100%' }}
-            >
-              {CountryValue.map((item, index) => {
-                return (
-                  <Select.Option key={item.code} value={item.english}>
-                    {item.english}
-                  </Select.Option>
-                );
-              })}
-            </Select>
-          </div>
           <div className="mb-3">
             <Button
               style={{ width: '100%' }}
               type="primary"
               loading={loading}
+              htmlType="submit"
               className="mt-16 w-full bg-primary-button text-white border-none"
-              onClick={submitNext}
             >
               Next
             </Button>
           </div>
-        </Form>
+        </ContentForm>
       </div>
     </LoginCard>
   );

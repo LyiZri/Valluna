@@ -1,23 +1,17 @@
 import { IUserInfo } from '@/types/user';
 import { useEffect, useState } from 'react';
+import { getUserInfo } from '../utils/user';
 
 const accountsInfo = () => {
   const [accountsInfoData, setAccountsInfoDataState] = useState<IUserInfo>(
     () => {
-      const userinfo: any =
-        localStorage.getItem('valluna.user-info') != undefined &&
-        localStorage.getItem('valluna.user-info') != null
-          ? JSON.parse(localStorage.getItem('valluna.user-info') as string)
-          : {};
-          console.log('userinfo====',userinfo);
-          
+      const userinfo: any = getUserInfo();
       return userinfo;
     },
   );
   const [accountsInfoLanguageData, setAccountsInfoLanguageData] = useState(
     () => {
       if (typeof(accountsInfoData.language) == 'string') {
-        console.log('123123',accountsInfoData.language);
         
         return JSON.parse(accountsInfoData.language);
       } else {

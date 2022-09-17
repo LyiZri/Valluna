@@ -4,21 +4,22 @@ import Logo from '@/assets/image/vallunaLogo.png'
 import { Button, Divider, Input, Layout } from "antd";
 import IconFont  from '@/compontents/Layout/IconFont';
 import { Alogin } from "@/services/login";
+import { useModel } from "@umijs/max";
 export default function LoginPage() {
     const [userValue,setUserValue] = useState({
         account:'',
         password:''
     })
+    // const {  setAccountsInfoData } = useModel('accountsInfo')
     const [loading,setLoading] = useState(false)
     const login = async ()=>{
       setLoading(true)
       const data = await Alogin(userValue)
       setLoading(false)
       if(data.code == 1){
-        console.log('data======',data);
         localStorage.setItem('valluna.user-info',JSON.stringify(data.data))
         localStorage.setItem('token',data.data.token)
-        history.push('/')
+        history.push('/accounts/valluna-accounts')
       }
     }
   return (
@@ -34,7 +35,7 @@ export default function LoginPage() {
                 ...userValue,
                 account:e.target.value
             })}}/>
-            <Input.Password iconRender={(visible:boolean)=>{
+            <Input.Password onPressEnter={login} iconRender={(visible:boolean)=>{
               return visible?<IconFont type="icon-yanjing_xianshi"></IconFont>:<IconFont type="icon-yanjing_yincang"></IconFont>
             }} className="text-white bg-input-content rounded-none" placeholder="Password" onChange={(e:any)=>{setUserValue({
                 ...userValue,

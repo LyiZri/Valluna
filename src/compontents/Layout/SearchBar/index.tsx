@@ -30,7 +30,7 @@ export default function searchBar(props: IProps) {
     );
   };
   return (
-    <div>
+    <div className='search-bar'>
       <Form
         name="advanced_search"
         className="ant-advanced-search-form flex justify-between"

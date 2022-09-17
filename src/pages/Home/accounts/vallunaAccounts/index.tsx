@@ -12,6 +12,7 @@ import { Button, Space, Table } from 'antd';
 import { ColumnsType } from 'antd/lib/table';
 import { useEffect, useState } from 'react';
 import { history } from 'umi';
+import { getCountryName } from '../../../../utils/format';
 
 interface DataType extends IUserInfo {}
 
@@ -158,7 +159,7 @@ export default function Accounts() {
       key: 'country',
       render: (_, { country }) => {
         if (country) {
-          return <p>{country}</p>;
+          return <p>{getCountryName(country)}</p>;
         } else {
           return <>-</>;
         }

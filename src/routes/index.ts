@@ -2,6 +2,8 @@ export interface route {
   path: string;
   component: string;
   name: string;
+  tag?:number
+  icon?:string
   routes?: route[];
   isRender: true;
 }
@@ -59,12 +61,14 @@ export default <route[]>[
     component: '@/pages/Home/accounts',
     name: 'Accounts',
     isRender: true,
+    icon:"icon-user",
     routes: [
       {
         path: '/accounts/valluna-accounts',
         component: '@/pages/Home/accounts/vallunaAccounts',
         name: 'Valluna Accounts',
         isRender: true,
+        tag:1
       },
       {
         path: '/accounts/valluna-accounts/account-details',
@@ -77,6 +81,7 @@ export default <route[]>[
         component: '@/pages/Home/accounts/userGroups',
         name: 'User Groups',
         isRender: true,
+        tag:2
       },
       {
         path:'/accounts/user-groups/create-user-tag',
@@ -91,12 +96,14 @@ export default <route[]>[
     component: '@/pages/Home/permissions',
     name: 'Permissions',
     isRender: true,
+    icon:"icon-permissions",
     routes: [
       {
         path: '/permissions/overview',
         component: '@/pages/Home/permissions/overview',
         name: 'Overview',
         isRender: true,
+        tag:3
       },
     ],
   },
@@ -105,12 +112,14 @@ export default <route[]>[
     component: '@/pages/Home/scholars',
     name: 'Scholars',
     isRender: true,
+    icon:"icon-maozi",
     routes: [
       {
         path: '/scholars/scholar-accounts',
         component: '@/pages/Home/scholars/scholarAccounts',
         name: 'Scholar Accounts',
         isRender: true,
+        tag:4
       },
       {
         path: '/scholars/scholar-accounts/create-new-scholar-account',
@@ -126,12 +135,14 @@ export default <route[]>[
     component: '@/pages/Home/axieInfinity',
     name: 'Axie Infinity',
     isRender: true,
+    icon:"icon-youxijishoubing",
     routes: [
       {
         path: '/axie-infinity/performance',
         component: '@/pages/Home/axieInfinity/performance',
         name: 'Performance',
         isRender: true,
+        tag:5
       },
     ],
   },

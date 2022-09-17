@@ -1,25 +1,39 @@
-const usernameVaild = (username:string)=>{
-    // const usernameReg = new RegExp('/^[a-z0-9_-]{3,16}$/')
-    
-    if(username === ''){
-        return false
+const usernameVaild = (rule:any,value:string,callback:Function)=>{
+    if(value === ''){
+        callback("Please enter a username")
     }else{
-        return true
+        callback()
     }
 }
-const emialVaild = (email:string) => {
+const emialVaild = (rule:any,value:string,callback:Function) => {
     const emailReg = new RegExp('^[A-Za-z0-9\u4e00-\u9fa5]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+$')
-    if(email === '' || !emailReg.test(email)){
-        return false
+    if(value == "" || !value){
+        callback("Please enter an email")
+    }else if(!emailReg.test(value)){
+        callback("Invalid email format")
     }else{
-        return true
+       callback()
     }
 }
-const passwordVaild = (password:string) => {
-    if(password === ''){
-        return false
+const passwordVaild = (rule:any,value:string,callback:Function) => {
+    if(value === '' || !value){
+        callback("Please enter a password")
     }else{
-        return true
+        callback()
+    }
+}
+const raddressVaild = (rule:any,value:string,callback:Function) =>{
+    if(value == '' || !value){
+        callback("Invalid Ronin Wallet Address")
+    }else{
+        callback()
+    }
+}
+const countryValid = (rule:any,value:string,callback:Function) => {
+    if(value == ''){
+        callback("Please select a country ")
+    }else{
+        callback()
     }
 }
 const reEnterPasswordVaild = (password:string,reEnterPassword:string) =>{
@@ -36,4 +50,11 @@ const emailOTPVaild = (code:string) => {
         return true
     }
 }
-export {usernameVaild,emialVaild,passwordVaild,reEnterPasswordVaild,emailOTPVaild}
+const OTPValid = (rule:any,value:string,callback:Function)=>{
+    if(value.length!=6){
+        callback("Wrong OTP code")
+    }else{
+        callback()
+    }
+}
+export {usernameVaild,raddressVaild,OTPValid,countryValid,emialVaild,passwordVaild,reEnterPasswordVaild,emailOTPVaild}

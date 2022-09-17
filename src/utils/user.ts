@@ -1,3 +1,7 @@
 export const getUserInfo = () =>{
-    return JSON.parse(localStorage.getItem('valluna.user-info') || '')
+    if(localStorage.getItem('valluna.user-info')){
+        return JSON.parse(localStorage.getItem('valluna.user-info') as string)
+    }else{
+        return {}
+    }
 }

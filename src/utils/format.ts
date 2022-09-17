@@ -1,3 +1,4 @@
+import CountryValue from '@/assets/json/language.json';
 // 示例方法，没有实际意义
 export function trim(str: string) {
   return str.trim();
@@ -15,4 +16,14 @@ export function timestampToTime(data: string) {
   let m = date.getMinutes() + ":";
   let s = date.getSeconds();
   return Y + M + D;
+}
+
+export function getCountryName(code:string){
+  let contryValue = '-'
+  CountryValue.map((item,index)=>{
+    if(code == item.code){
+      contryValue =  item.english
+    }
+  })
+  return contryValue
 }

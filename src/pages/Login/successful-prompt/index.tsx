@@ -1,7 +1,6 @@
-import React, { useEffect } from "react";
-import SuccessPage from "@/compontents/Profession/SuccessfulPage";
-import { history } from "umi";
-import LoginCard from "@/compontents/Layout/LoginCard";
+import SuccessPage from '@/compontents/Profession/SuccessfulPage';
+import { useEffect } from 'react';
+import { history } from '@umijs/max';
 export default function SuccessfulReset() {
   useEffect(() => {
     setTimeout(() => {
@@ -9,8 +8,10 @@ export default function SuccessfulReset() {
     }, 3000);
   });
   return (
-    <LoginCard>
-      <SuccessPage text="Your password has been changed" />
-    </LoginCard>
+    <div className="h-full w-full flex flex-col justify-center">
+      <div className="w-full text-center">
+        <SuccessPage text="Your password has been changed" />
+      </div>
+    </div>
   );
 }

@@ -31,7 +31,7 @@ export default function ResetPassword() {
       opt,
       password: passwordValue.password,
     });
-    if (data == 1) {
+    if (data.code == 1) {
       setLoading(false);
       history.push('/login/successful-prompt');
     }

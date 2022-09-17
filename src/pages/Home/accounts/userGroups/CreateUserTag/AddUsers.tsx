@@ -75,6 +75,7 @@ export default function AddUsers({
       await getList()
     })()
   },[])
+
   const tableColums: ColumnsType<IUserInfo> = [
     {
       title: 'User ID',

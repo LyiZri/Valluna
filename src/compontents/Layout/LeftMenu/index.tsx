@@ -1,18 +1,49 @@
+import IconFont from '@/compontents/Layout/IconFont';
 import routes, { route } from '@/routes';
 import { useState } from 'react';
 import { history } from 'umi';
 import styles from './index.less';
+interface IChoose {
+  index: number;
+  tag: number;
+}
 export default function LeftMenu() {
   const routeChange = (path: string, index: number) => {
+    localStorage.setItem(
+      'labelChoose',
+      JSON.stringify({
+        ...labelChoose,
+        tag: index,
+      }),
+    );
     history.push(path);
     setLabelChoose({
       ...labelChoose,
       tag: index,
     });
   };
-  const [labelChoose, setLabelChoose] = useState({
-    label: 2,
-    tag: 0,
+  const labelChange = (index: number) => {
+    localStorage.setItem(
+      'labelChoose',
+      JSON.stringify({
+        ...labelChoose,
+        label: index,
+      }),
+    );
+    setLabelChoose({
+      ...labelChoose,
+      label: index,
+    });
+  };
+  const [labelChoose, setLabelChoose] = useState(() => {
+    if (localStorage.getItem('labelChoose')) {
+      return JSON.parse(localStorage.getItem('labelChoose') as string);
+    } else {
+      return {
+        label: 2,
+        tag: 1,
+      };
+    }
   });
   return (
     <div
@@ -25,20 +56,28 @@ export default function LeftMenu() {
               return (
                 <li key={index}>
                   <div
-                    className={`p-2 rounded text-xl ${
+                    className={`p-2 rounded flex justify-between text-xl ${
                       labelChoose.label === index
                         ? `bg-left-bar-choose text-white`
                         : `text-white bg-page-bg`
                     }`}
                     onClick={() => {
-                      setLabelChoose({
-                        label: index,
-                        tag: 0,
-                      });
+                      labelChange(index);
                     }}
                     role={'button'}
                   >
+                    <p>
+                    <IconFont className='text-2xl mr-4 text-white' type={item.icon as string}></IconFont>
                     {item.name}
+                    </p>
+                    <IconFont
+                    className='text-2xl'
+                      type={
+                        labelChoose.label === index
+                          ? 'icon-arrow-down-filling'
+                          : 'icon-arrow-up-filling'
+                      }
+                    ></IconFont>
                   </div>
                   <ul
                     className={` ${styles.menuTransform} btn-toggle-nav  list-unstyled fw-normal pb-1 small `}
@@ -50,22 +89,22 @@ export default function LeftMenu() {
                       }`}
                       key={index}
                     >
-                    {item.routes?.map((item1, index1) => {
-                      if (!item1.isRender) {
-                        return ;
-                      }
-                      return (
+                      {item.routes?.map((item1, index1) => {
+                        if (!item1.isRender) {
+                          return;
+                        }
+                        return (
                           <li
                             key={index1}
                             className={`p-2 `}
                             onClick={() => {
-                              routeChange(item1.path, index1);
+                              routeChange(item1.path, item1.tag as number);
                             }}
                           >
                             <div
                               role={'button'}
                               className={` ${
-                                labelChoose.tag === index1
+                                labelChoose.tag === item1.tag
                                   ? `text-left-bar-choose`
                                   : `text-white`
                               }`}
@@ -73,8 +112,8 @@ export default function LeftMenu() {
                               {item1.name}
                             </div>
                           </li>
-                      );
-                    })}
+                        );
+                      })}
                     </div>
                   </ul>
                 </li>
