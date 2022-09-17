@@ -25,7 +25,14 @@ interface ResponseStructure {
   errorMessage?: string;
   showType?: ErrorShowType;
 }
-
+export function onRouteChange({ location, clientRoutes, routes, action }:any) {
+  if(location.pathname.slice(0,6)!='/login' && (!localStorage.getItem("token") || localStorage.getItem("token")=="")){
+    localStorage.clear()
+    message.warning("Please log in again.")
+    history.push("/login/login-page")
+  }
+  
+}
 export const layout: RunTimeLayoutConfig = (initialState) => {
   return {
     logo: 'https://img.alicdn.com/tfs/TB1YHEpwUT1gK0jSZFhXXaAtVXa-28-27.svg',
