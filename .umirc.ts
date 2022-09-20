@@ -10,7 +10,8 @@ export default defineConfig({
   layout: {
     title: "Valluna",
   },
-  proxy:proxy.dev,
+  // proxy:proxy.dev,
+  proxy:proxy.pre,
   routes,
   npmClient: "npm",
   tailwindcss: {},
