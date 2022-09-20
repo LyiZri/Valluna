@@ -34,7 +34,7 @@
     pre: {
       '/api/': {
         target: 'http://18.138.236.244:8000',
-        changeOrigin: true,
+        // changeOrigin: true,
       },
     },
   };
