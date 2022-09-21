@@ -2,6 +2,7 @@ import ContentHeader from '@/compontents/Layout/ContentHeader';
 import { history } from '@umijs/max';
 import { RequestConfig, RunTimeLayoutConfig } from '@umijs/max';
 import { message } from 'antd';
+import '@/assets/css/index.css'
 import LeftMenu from './compontents/Layout/LeftMenu';
 // 运行时配置
 
