@@ -46,7 +46,15 @@ export default function Accounts() {
         keyArr.push(item.key);
       }
     });
-    downloadCsv(list, titleArr, keyArr);
+    let downloadlist:DataType[] = []
+    if(selectedRowKeys.length == 0){
+      downloadlist = list
+    }else{
+      selectedRowKeys.map((item,_)=>{
+        downloadlist.push(list[((item as number)-1)])
+      })
+    }
+    downloadCsv(downloadlist, titleArr, keyArr);
   };
   const searchItem: IFormItem[] = [
     {
@@ -96,7 +104,7 @@ export default function Accounts() {
       col: 3,
       render: (
         <Button
-          className="  border-none rounded-lg bg-purple-button hover:bg-purple-800 hover:text-white  text-white"
+          className="ml-4 px-4 border-none rounded-lg bg-purple-button hover:bg-purple-800 focus:bg-purple-800 focus:text-white active:bg-purple-800 active:text-white hover:text-white  text-white"
           onClick={exportCsv}
         >
           export
@@ -214,6 +222,8 @@ export default function Accounts() {
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
 
   const onSelectChange = (newSelectedRowKeys: React.Key[]) => {
+    console.log(newSelectedRowKeys);
+    
     setSelectedRowKeys(newSelectedRowKeys);
   };
 
@@ -224,8 +234,18 @@ export default function Accounts() {
 
   const search = async (values: any) => {
     searchData = values;
-    await getList();
+    const res =  await getList();
+    setList(res)
   };
+  const pageChange = async (e:any)=>{
+    if(list.length > (e-1)*10){
+      pageNum = e
+    }else{
+      pageNum = e
+     const res =  await getList()
+     setList(list.concat(res));
+    }
+  }
   const getList = async () => {
     setloading(true);
     try {
@@ -238,13 +258,16 @@ export default function Accounts() {
         ...pageData,
         amount: data.data.amount,
       });
-      setList(data.data.list);
-    } catch (error) {}
-    setloading(false);
+      setloading(false);
+      return data.data.list
+    } catch (error) {
+      setloading(false);
+    }
   };
   useEffect(() => {
     (async () => {
-      getList();
+      const res = await getList();
+      setList(res)
     })();
   }, []);
 
@@ -271,8 +294,7 @@ export default function Accounts() {
             itemRender: itemRender,
             total: pageData.amount,
             onChange: (e) => {
-              pageNum = e;
-              getList();
+              pageChange(e)
             },
           }}
         />

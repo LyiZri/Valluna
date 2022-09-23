@@ -58,7 +58,7 @@ export const layout: RunTimeLayoutConfig = (initialState) => {
 };
 export const request: RequestConfig = {
   // 统一的请求设定
-  timeout: 5000,
+  timeout: 15000,
   headers: {
     'X-Requested-With': 'XMLHttpRequest',
     'Content-Type': "multipart/form-data"

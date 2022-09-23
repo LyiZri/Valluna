@@ -17,7 +17,7 @@ import { Modal } from 'antd';
 import PasswordUpdate from './compontents/passwordUpdate';
 import  IconFont  from '@/compontents/Layout/IconFont';
 import { countryValid, emialVaild, usernameVaild } from '@/utils/vaildation';
-import { getCountryName } from '../../../../utils/format';
+import { getCountryId, getCountryName } from '../../../../utils/format';
 import { useEffect } from 'react';
 import { getUserInfo } from '@/utils/user';
 
@@ -59,10 +59,9 @@ export default function accountDetails() {
     });
   };
   const onSave = async (e: IUserInfo) => {
-    console.log(accountsInfoLanguageData,e);
     const saveData: IUserInfo = {
-      ...accountsInfoData,
       ...e,
+      country:getCountryId(e.country as string),
       language: JSON.stringify(accountsInfoLanguageData),
     };
     setLoading(true);

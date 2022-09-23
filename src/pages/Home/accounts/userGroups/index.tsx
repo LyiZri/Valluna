@@ -10,6 +10,7 @@ import {
   groupMassUpload,
   groupRemoveItem,
 } from '@/services/groups';
+
 import { IButtonItem } from '@/types/form';
 import { IUserInfo } from '@/types/user';
 import { timestampToTime } from '@/utils/format';
@@ -41,6 +42,15 @@ export default function userGroups() {
   };
   let pageNum = 1;
   const { groupInfo, setGroupInfo } = useModel('groupsInfo');
+  const pageChange = async (e:any)=>{
+    if(list.length > (e-1)*10){
+      pageNum = e
+    }else{
+      pageNum = e
+     const res =  await getList()
+     setList(list.concat(res));
+    }
+  }
   const getList = async () => {
     setLodaingStatus({
       ...loadingStatus,
@@ -51,17 +61,18 @@ export default function userGroups() {
       page: pageNum,
       ...searchData,
     });
-    if (data.code == 1) {
-      setList(data.data.list);
-    }
     setLodaingStatus({
       ...loadingStatus,
       table: false,
     });
+    if (data.code == 1) {
+      return data.data.list
+    }
   };
   useEffect(() => {
     (async () => {
-      await getList();
+      const res = await getList();
+      setList(res)
     })();
   }, []);
   const searchBarItem: IButtonItem[] = [
@@ -149,6 +160,7 @@ export default function userGroups() {
               type="icon-bianji"
               className="text-2xl cursor-pointer"
             ></IconFont>
+            
             <IconFont
               type="icon-shanchu"
               onClick={()=>setDeleteModalValue({
@@ -188,13 +200,15 @@ export default function userGroups() {
       icon: 'icon-chazhao',
     },
   ];
-  const search = async (value: any) => {
-    searchData = value;
-    await getList();
+  const search = async (values: any) => {
+    searchData = values;
+    const res =  await getList();
+    setList(res)
   };
   const buttonSeatch = async (type: number) => {
     searchData.type = type;
-    await getList();
+    const res =  await getList();
+    setList(res)
   };
   const deleteConfirm = async () =>{
     setDeleteModalValue({
@@ -202,7 +216,8 @@ export default function userGroups() {
       loading:true
     })
     const data = await groupRemoveItem({gid:deleteModalValue.id})
-    await getList()
+    const res = await getList()
+    setList(res)
     setDeleteModalValue({
       loading:false,
       status:false,
@@ -261,8 +276,7 @@ export default function userGroups() {
               itemRender: itemRender,
               total: pageData.size,
               onChange: (e) => {
-                pageNum = e;
-                getList();
+                pageChange(e)
               },
             }}
           />

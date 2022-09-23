@@ -6,6 +6,7 @@ import { IFormItem, ISelectOption } from '@/types/form';
 import { Form, Input, Radio, Select, Space } from 'antd';
 import { FormLayout } from 'antd/lib/form/Form';
 import IconFont from '../IconFont';
+import { getCountryName } from '../../../utils/format';
 interface IProps {
   onFinish: Function;
   formItem?: IFormItem[];
@@ -174,6 +175,7 @@ export default function ContentForm({
                   }}
                   value={item.value as string | number}
                 ></Input.Password>
+                
               </Form.Item>
             );
           }

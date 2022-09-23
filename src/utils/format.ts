@@ -27,3 +27,18 @@ export function getCountryName(code:string){
   })
   return contryValue
 }
+export function getCountryId(name:string){
+  let coutryId = ''
+  CountryValue.map((item,index)=>{
+    if(item.english == name){
+      console.log(item);
+      coutryId = item.code
+      console.log(coutryId);
+    }
+  })
+  console.log(name,coutryId);
+  if (coutryId == ''){
+    return name
+  }
+  return coutryId
+}

@@ -1,3 +1,4 @@
+import ContentEmpty from '@/compontents/Layout/ContentEmpty';
 import { itemRender } from '@/compontents/Layout/PageContaineriTemRender';
 import SearchBar from '@/compontents/Layout/SearchBar';
 import UserGroups from '@/compontents/User/UserGroupsTag';
@@ -17,7 +18,10 @@ interface IProps {
 
 export default function linkTable({ memberUserId }: IProps) {
   const [list, setList] = useState<DataType[]>([]);
-  const [loading, setloading] = useState(false);
+  const [loadingStatus, setLoadingStatus] = useState({
+    tableLoading: false,
+    linkLoading: false,
+  });
   let [pageData, setPageData] = useState({
     size: 10,
     amount: 10,
@@ -32,20 +36,21 @@ export default function linkTable({ memberUserId }: IProps) {
   };
   const onSelectChange = (newSelectedRowKeys: React.Key[]) => {
     console.log(newSelectedRowKeys);
-    
+
     setSelectedRowKeys(newSelectedRowKeys);
   };
-  const rowSelection:TableRowSelection<DataType>  = {
+  const rowSelection: TableRowSelection<DataType> = {
     selectedRowKeys,
-    type:'radio',
+    type: 'radio',
     onChange: onSelectChange,
   };
 
   const getList = async () => {
-    setloading(true);
+    setLoadingStatus({
+      ...loadingStatus,
+      tableLoading: true,
+    });
     try {
-      console.log(pageData, memberUserId);
-
       const data = await getMembersList({
         ...searchData,
         uid: memberUserId,
@@ -56,27 +61,54 @@ export default function linkTable({ memberUserId }: IProps) {
         ...pageData,
         amount: data.data.amount,
       });
-      setList(data.data.list);
-    } catch (error) {}
-    setloading(false);
+      setLoadingStatus({
+        ...loadingStatus,
+        tableLoading: false,
+      });
+      return data.data.list;
+    } catch (error) {
+      setLoadingStatus({
+        ...loadingStatus,
+        tableLoading: false,
+      });
+    }
   };
   useEffect(() => {
     (async () => {
-      getList();
+      const res = await getList();
+      setList(res);
     })();
   }, []);
   const search = async (values: any) => {
     searchData = values;
-    await getList();
+    const res = await getList();
+    setList(res);
   };
-  const linkItem = async () =>{
-    const sid  = list[(selectedRowKeys[0] as number)-1].scholarid
-    const uid  = list[(selectedRowKeys[0] as number)-1].uid
-    const data = await unLinkScholarItem({sid,uid,type:"link"})
-    if(data.code == 1){
-      message.success('success')
+  const linkItem = async () => {
+    setLoadingStatus({
+      ...loadingStatus,
+      linkLoading:true
+    })
+    const sid = list[(selectedRowKeys[0] as number) - 1].scholarid;
+    const uid = list[(selectedRowKeys[0] as number) - 1].uid;
+    const data = await unLinkScholarItem({ sid, uid, type: 'link' });
+    setLoadingStatus({
+      ...loadingStatus,
+      linkLoading:false
+    })
+    if (data.code == 1) {
+      message.success('success');
     }
-  }
+  };
+  const pageChange = async (e: any) => {
+    if (list.length > (e - 1) * 10) {
+      pageNum = e;
+    } else {
+      pageNum = e;
+      const res = await getList();
+      setList(list.concat(res));
+    }
+  };
   const searchItem: IFormItem[] = [
     {
       name: 'uid',
@@ -125,15 +157,17 @@ export default function linkTable({ memberUserId }: IProps) {
       type: '',
       col: 3,
       render: (
-        <Button onClick={linkItem} 
-        className="ml-4 px-4 border-none rounded-lg bg-purple-button hover:bg-purple-800 focus:bg-purple-800 focus:text-white active:bg-purple-800 active:text-white hover:text-white  text-white"
+        <Button
+          onClick={linkItem}
+          loading={loadingStatus.linkLoading}
+          className="ml-4 px-4 border-none rounded-lg bg-purple-button hover:bg-purple-800 focus:bg-purple-800 focus:text-white active:bg-purple-800 active:text-white hover:text-white  text-white"
         >
           Link
         </Button>
       ),
     },
   ];
-  
+
   const colums: ColumnsType<DataType> = [
     {
       title: 'User ID',
@@ -206,31 +240,32 @@ export default function linkTable({ memberUserId }: IProps) {
   ];
   return (
     <div className="">
-      <p className='mb-2 text-2xl'>Scholar Account Overview</p>
+      <p className="mb-2 text-2xl">Scholar Account Overview</p>
 
       <h3 className="text-gray-400 mb-12">
         Scholar Account ID : {memberUserId} <br /> Select a Member Account to
         link to
       </h3>
       <SearchBar search={search} searchItem={searchItem} />
-      <Table
-        rowClassName={'bg-bar-bg text-white bg-card-bg'}
-        loading={loading}
-        rowSelection={rowSelection}
-        rowKey={'uid'}
-        columns={colums}
-        dataSource={list}
-        scroll={{ x: 1000 }}
-        pagination={{
-          pageSize: 10,
-          itemRender: itemRender,
-          total: pageData.amount,
-          onChange: (e) => {
-            pageNum = e;
-            getList();
-          },
-        }}
-      ></Table>
+      <ContentEmpty>
+        <Table
+          rowClassName={'bg-bar-bg text-white bg-card-bg'}
+          loading={loadingStatus.tableLoading}
+          rowSelection={rowSelection}
+          rowKey={'uid'}
+          columns={colums}
+          dataSource={list}
+          scroll={{ x: 1000 }}
+          pagination={{
+            pageSize: 10,
+            itemRender: itemRender,
+            total: pageData.amount,
+            onChange: (e) => {
+              pageChange(e);
+            },
+          }}
+        />
+      </ContentEmpty>
     </div>
   );
 }

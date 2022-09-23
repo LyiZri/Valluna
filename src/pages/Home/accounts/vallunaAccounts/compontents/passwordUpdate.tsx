@@ -24,7 +24,8 @@ export default function PasswordUpdate({
   const submit = async (e:any) => {
     setLoading(true);
     const data = await changePassword({
-      ...e
+      ...e,
+      newpassword:e.password
     });
     setLoading(false);
     if (data.code == 1) {

@@ -79,9 +79,9 @@ export default function searchBar(props: IProps) {
               >
                 <Select
                   placeholder={item.placeholder}
-                  className="bg-input-content mr-4 rounded-lg !w-32"
+                  className="bg-input-content text-black mr-4 rounded-lg !w-32"
                   dropdownClassName={'text-white'}
-                  mode="multiple"
+                  tagRender={tagRender}
                   options={searchStatusData}
                 ></Select>
               </Form.Item>
@@ -93,7 +93,7 @@ export default function searchBar(props: IProps) {
         {props.searchItem.map((item, index) => {
           if (item.type == 'link-reset') {
             return (
-              <Button key={index} type="link" htmlType="reset" className='px-1'>
+              <Button key={index} type="link" htmlType="reset" onClick={()=>props.search()} className='px-1'>
                 <div className='px-1 rounded bg-gray-500'>
                 <IconFont
                   type={item.icon as string}

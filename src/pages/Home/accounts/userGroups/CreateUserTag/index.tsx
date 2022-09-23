@@ -1,4 +1,5 @@
 import ContentCard from '@/compontents/Layout/ContentCard/index';
+import ContentEmpty from '@/compontents/Layout/ContentEmpty';
 import ContentForm from '@/compontents/Layout/ContentForm';
 import IconFont from '@/compontents/Layout/IconFont';
 import { itemRender } from '@/compontents/Layout/PageContaineriTemRender';
@@ -316,7 +317,7 @@ export default function CreateUserTag() {
     if (params.getAll('gid')[0]) {
       const data = await groupsUpdate({
         ...e,
-        members: members,
+        members: members.toString(),
         gid:params.getAll('gid')[0]
       });
       if (data.code == 1) {
@@ -325,7 +326,7 @@ export default function CreateUserTag() {
     } else {
       const data = await createUserTag({
         ...e,
-        members: members,
+        members: members.toString(),
       });
       if (data.code == 1) {
         message.success('Create Success');
@@ -357,6 +358,8 @@ export default function CreateUserTag() {
         )}
         {(!isUpdated || groupInfo.num == 0 ||(addArr.length!=0)) && <>
         <SearchBar search={search} searchItem={searchItem} />
+        <ContentEmpty>
+
         <Table
           rowClassName={'bg-bar-bg text-white bg-card-bg'}
           rowSelection={rowSelection}
@@ -373,7 +376,8 @@ export default function CreateUserTag() {
               getAddList();
             },
           }}
-          ></Table>
+          />
+          </ContentEmpty>
           </>
           }
         <div>

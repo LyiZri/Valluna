@@ -62,3 +62,9 @@ export async function createUserTag(data:any){
     data:requestDataWrap(data)
   })
 }
+export async function updateScholar(data:any){
+  return request("/api/scholars/update",{
+    method:"POST",
+    data:requestDataWrap(data)
+  })
+}

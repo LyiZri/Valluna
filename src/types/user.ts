@@ -49,10 +49,10 @@ export const proficiencyData = [
 ]
 export const searchStatusData= [
     {
-        value:'1',label:'linked'
+        value:'linked',label:'linked'
     },
     {
-        value:'2',label:'unlinked'
+        value:'unlinked',label:'unlinked'
     }
 ]
 export const permissionsData = [

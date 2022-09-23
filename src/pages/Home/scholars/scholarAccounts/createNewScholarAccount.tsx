@@ -1,7 +1,7 @@
 import ContentCard from '@/compontents/Layout/ContentCard';
 import ContentForm from '@/compontents/Layout/ContentForm/index';
 import IconFont from '@/compontents/Layout/IconFont';
-import { createScholar, getScholarInfo } from '@/services/scholars';
+import { createScholar, getScholarInfo, updateScholar } from '@/services/scholars';
 import { IFormItem } from '@/types/form';
 import { gameData } from '@/types/user';
 import { emialVaild, raddressVaild, passwordVaild } from '@/utils/vaildation';
@@ -85,7 +85,7 @@ export default function createNewScholarAccount() {
   const onFinish = async (values: any) => {
     setLoading(true);
     try {
-      const data = await createScholar(values);
+      const data = !isUpdated? await createScholar(values): await updateScholar({...values,sid:params.getAll("sid")[0]});
       if (data.code == 1) {
         message.success('Success!');
       }
@@ -112,6 +112,7 @@ export default function createNewScholarAccount() {
                 Cancel
               </Button>
               <Button
+              loading={loading}
                 className="ml-4 px-4 border-none rounded-lg bg-purple-button hover:bg-purple-800 focus:bg-purple-800 focus:text-white active:bg-purple-800 active:text-white hover:text-white  text-white"
                 htmlType="submit"
               >

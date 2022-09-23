@@ -1,3 +1,4 @@
+import ContentEmpty from '@/compontents/Layout/ContentEmpty';
 import IconFont from '@/compontents/Layout/IconFont';
 import { itemRender } from '@/compontents/Layout/PageContaineriTemRender';
 import SearchBar from '@/compontents/Layout/SearchBar';
@@ -5,11 +6,9 @@ import UserGroups from '@/compontents/User/UserGroupsTag';
 import { getMembersList } from '@/services/members';
 import { IFormItem } from '@/types/form';
 import { IUserInfo } from '@/types/user';
-import { DeleteOutlined, SearchOutlined, UndoOutlined } from '@ant-design/icons';
-import { Button, Modal, Space, Tag } from 'antd';
+import { Button, Modal } from 'antd';
 import Table, { ColumnsType } from 'antd/lib/table';
-import React, { useState } from 'react';
-import { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 
 interface DataType extends IUserInfo {}
 interface IProps {
@@ -22,22 +21,31 @@ export default function AddUsers({
   visible,
   setVisible,
   addArr,
-  setAddArr
+  setAddArr,
 }: IProps) {
   const [selectRowKey, setSelectRowKey] = useState<React.Key[]>();
   const [list, setList] = useState<DataType[]>([]);
-  let [pageData,setPageData] = useState({
-    size:10,
+  let [pageData, setPageData] = useState({
+    size: 10,
     amount: 10,
   });
-  let pageNum = 1
+  let pageNum = 1;
   let searchData = {
     uid: '',
     username: '',
     email: '',
     groups: [],
   };
-  const getList = async () =>{
+  const pageChange = async (e:any)=>{
+    if(list.length > (e-1)*10){
+      pageNum = e
+    }else{
+      pageNum = e
+     const res =  await getList()
+     setList(list.concat(res));
+    }
+  }
+  const getList = async () => {
     const data = await getMembersList({
       page: pageNum,
       size: '10',
@@ -45,36 +53,38 @@ export default function AddUsers({
     });
     setPageData({
       ...pageData,
-      amount:data.data.amount
-    })
-    setList(data.data.list);
-  }
+      amount: data.data.amount,
+    });
+    return data.data.list
+  };
   const search = async (values: any) => {
     searchData = values;
-    await getList();
+    const res =  await getList();
+    setList(res)
   };
-  const onAdd = ()=>{
-    const selectArr:IUserInfo[] = []
-    if(!selectRowKey||selectRowKey.length == 0){
-      setVisible(false)
-      return 
+  const onAdd = () => {
+    const selectArr: IUserInfo[] = [];
+    if (!selectRowKey || selectRowKey.length == 0) {
+      setVisible(false);
+      return;
     }
-    list.map((item1,index1)=>{
-      selectRowKey?.map((item2,index2)=>{
-        if(item2 == item1.uid){
-          selectArr.push(item1)
+    list.map((item1, index1) => {
+      selectRowKey?.map((item2, index2) => {
+        if (item2 == item1.uid) {
+          selectArr.push(item1);
         }
-      })
-    })
+      });
+    });
     //数组去重
     setAddArr(Array.from(new Set(addArr.concat(selectArr))));
-    setVisible(false)
-  }
-  useEffect(()=>{
-    (async()=>{
-      await getList()
-    })()
-  },[])
+    setVisible(false);
+  };
+  useEffect(() => {
+    (async () => {
+      const res = await getList();
+      setList(res)
+    })();
+  }, []);
 
   const tableColums: ColumnsType<IUserInfo> = [
     {
@@ -117,12 +127,12 @@ export default function AddUsers({
       },
     },
     {
-      title:"Country",
-      key:"country",
-      dataIndex:"country",
-      render:(_,{country})=>{
-        return country?country:"-"
-      }
+      title: 'Country',
+      key: 'country',
+      dataIndex: 'country',
+      render: (_, { country }) => {
+        return country ? country : '-';
+      },
     },
     {
       title: 'Discord ID',
@@ -140,7 +150,7 @@ export default function AddUsers({
       placeholder: 'User ID',
       label: '',
       value: '',
-      col:3,
+      col: 3,
       require: false,
     },
     {
@@ -149,9 +159,8 @@ export default function AddUsers({
       placeholder: 'User Name',
       label: '',
       value: '',
-      col:3,
+      col: 3,
       require: false,
-      
     },
     {
       name: 'email',
@@ -159,14 +168,14 @@ export default function AddUsers({
       placeholder: 'Email',
       label: '',
       value: '',
-      col:3,
+      col: 3,
       require: false,
     },
     {
       name: 'groups',
       type: 'groups-select',
       col: 3,
-      placeholder:'Groups'
+      placeholder: 'Groups',
     },
     {
       name: 'col',
@@ -193,7 +202,12 @@ export default function AddUsers({
       require: false,
       render: (
         <>
-        <Button onClick={onAdd} className="ml-4  border-none rounded-lg bg-purple-button hover:bg-purple-800 focus:bg-purple-800 focus:text-white active:bg-purple-800 active:text-white hover:text-white  text-white" >Add</Button>
+          <Button
+            onClick={onAdd}
+            className="ml-4  border-none rounded-lg bg-purple-button hover:bg-purple-800 focus:bg-purple-800 focus:text-white active:bg-purple-800 active:text-white hover:text-white  text-white"
+          >
+            Add
+          </Button>
         </>
       ),
     },
@@ -209,31 +223,37 @@ export default function AddUsers({
     <Modal
       width={1300}
       visible={visible}
+      footer={null}
       onCancel={() => {
         setVisible(false);
       }}
       className="text-center"
       closeIcon={<IconFont type="icon-close" className="text-2xl"></IconFont>}
     >
-      <h2 className='w-full text-center text-white text-2xl mb-4'>Select Member Account</h2>
-      <h6 className='w-full text-center text-white text-xl mb-4'>Select Member Accounts to upload to Group</h6>
+      <h2 className="w-full text-center text-white text-2xl mb-4">
+        Select Member Account
+      </h2>
+      <h6 className="w-full text-center text-white text-xl mb-4">
+        Select Member Accounts to upload to Group
+      </h6>
       <SearchBar search={search} searchItem={searchItem} />
-      <Table
-      rowClassName={'bg-bar-bg text-white bg-card-bg'}
-        rowSelection={rowSelection}
-        columns={tableColums}
-        dataSource={list}
-        rowKey={'uid'}
-        pagination={{
-          pageSize: 10,
-          itemRender:itemRender,
-          total: pageData.amount,
-          onChange: (e) => {
-            pageNum = e
-            getList();
-          },
-        }}
-      ></Table>
+      <ContentEmpty>
+        <Table
+          rowClassName={'bg-bar-bg text-white bg-card-bg'}
+          rowSelection={rowSelection}
+          columns={tableColums}
+          dataSource={list}
+          rowKey={'uid'}
+          pagination={{
+            pageSize: 10,
+            itemRender: itemRender,
+            total: pageData.amount,
+            onChange: (e) => {
+              pageChange(e)
+            },
+          }}
+        />
+      </ContentEmpty>
     </Modal>
   );
 }

@@ -1,3 +1,4 @@
+import ContentEmpty from '@/compontents/Layout/ContentEmpty';
 import IconFont from '@/compontents/Layout/IconFont';
 import { itemRender } from '@/compontents/Layout/PageContaineriTemRender';
 import SearchBar from '@/compontents/Layout/SearchBar';
@@ -44,6 +45,10 @@ export default function Accounts() {
       confirm: () => {},
     },
   });
+  const [loadingStauts, setLoadingStatus] = useState({
+    tableLoading: false,
+    confirmLoading: false,
+  });
   const { scholarInfo, setScholarInfo } = useModel('scholarInfo');
   //文件上传控制器
   let inputRef: any;
@@ -66,19 +71,40 @@ export default function Accounts() {
     amount: 10,
   });
   let pageNum = 1;
+
+  let searchData = {};
+
   const [list, setList] = useState<IUserInfo[]>([]);
   useEffect(() => {
     (async () => {
-      await getList();
+      const res = await getList();
+      setList(res);
     })();
   }, []);
   const getList = async () => {
+    setLoadingStatus({
+      ...loadingStauts,
+      tableLoading: true,
+    });
     try {
-      const data = await getScholarsInfoList({ ...pageData, page: pageNum });
+      const data = await getScholarsInfoList({
+        ...pageData,
+        ...searchData,
+        page: pageNum,
+      });
+      setLoadingStatus({
+        ...loadingStauts,
+        tableLoading: false,
+      });
       if (data.code == 1) {
-        setList(data.data.list);
+        return data.data.list;
       }
-    } catch (error) {}
+    } catch (error) {
+      setLoadingStatus({
+        ...loadingStauts,
+        tableLoading: false,
+      });
+    }
   };
   const exportCsv = () => {
     let titleArr: any[] = [];
@@ -89,7 +115,15 @@ export default function Accounts() {
         keyArr.push(item.key);
       }
     });
-    downloadCsv(list, titleArr, keyArr);
+    let downloadlist:DataType[] = []
+    if(selectedRowKeys.length == 0){
+      downloadlist = list
+    }else{
+      selectedRowKeys.map((item,_)=>{
+        downloadlist.push(list[((item as number)-1)])
+      })
+    }
+    downloadCsv(downloadlist, titleArr, keyArr);
   };
   const colums: ColumnsType<DataType> = [
     {
@@ -242,17 +276,16 @@ export default function Accounts() {
                 linkedStatusChange(record);
               }}
             >
-              {record.memberid == '' || record.memberid==0 ? (
+              {record.memberid == '' || record.memberid == 0 ? (
                 <IconFont
-                type="icon-tianjiayonghu"
-                className="text-2xl"
-              ></IconFont>
+                  type="icon-tianjiayonghu"
+                  className="text-2xl"
+                ></IconFont>
               ) : (
                 <IconFont
-                type="icon-jianshaoyonghu"
-                className="text-2xl"
-              ></IconFont>
-               
+                  type="icon-jianshaoyonghu"
+                  className="text-2xl"
+                ></IconFont>
               )}
             </Button>
             <Button
@@ -307,10 +340,10 @@ export default function Accounts() {
       placeholder: 'Groups',
     },
     {
-      name: 'memberid',
+      name: 'uid',
       type: 'input',
       col: 2,
-      placeholder: 'Member User ID',
+      placeholder: 'User ID',
     },
     {
       name: '',
@@ -347,20 +380,32 @@ export default function Accounts() {
     sid: string | undefined,
     uid: string | undefined,
   ) => {
+    setLoadingStatus({
+      ...loadingStauts,
+      confirmLoading:true
+    })
     if (sid == undefined || uid == undefined) {
       message.error('Can not find user ID or scholar ID');
       return;
     }
+    try {
     const data = await unLinkScholarItem({
       sid,
       uid,
+      type: 'unlink',
     });
+    setLoadingStatus({
+      ...loadingStauts,
+      confirmLoading:false
+    })
     if (data.code == 1) {
       confirmClick(
         true,
-        <div>
-          <p className="text-white text-2xl mb-16">success</p>
-          <p className="text-gray-500 text-lg mb-100">
+        <div className="text-center">
+          <p className="text-white text-center w-full text-2xl mb-16">
+            success
+          </p>
+          <p className="text-gray-500 text-lg mb-100 w-full text-center">
             Scholar Account ID ({sid}) has been unlinked from Member Account(
             {uid})
           </p>
@@ -368,6 +413,12 @@ export default function Accounts() {
         </div>,
       );
     }
+  } catch (error) {
+    setLoadingStatus({
+      ...loadingStauts,
+      confirmLoading:false
+    })   
+  }
   };
   const [fileValue, setFileValue] = useState<File>();
   const linkedStatusChange = (value: DataType) => {
@@ -384,13 +435,17 @@ export default function Accounts() {
           <p className="text-2xl text-white ">Confirmation </p>
           <p className="text-xl my-32">
             Are you sure you wish to unlink Scholar Account lD ({value.sid})
-            from Menmber Account ({value.sid})?
+            from Menmber Account ({value.memberid})?
           </p>
           <div className="px-32 mt-32 flex justify-between">
-            <Button onClick={modalCancel} className="px-12 bg-gray-button hover: text-white rounded-lg hover:bg-gray-800 hover:text-white focus:bg-gray-800 focus:text-white active:bg-gray-800 active:text-white">
+            <Button
+              onClick={modalCancel}
+              className="px-12 bg-gray-button hover: text-white rounded-lg hover:bg-gray-800 hover:text-white focus:bg-gray-800 focus:text-white active:bg-gray-800 active:text-white"
+            >
               Cancel
             </Button>
             <Button
+              loading={loadingStauts.tableLoading}
               onClick={() => deleteConfirm(value.sid)}
               className="ml-4 px-12 border-none rounded-lg bg-purple-button hover:bg-purple-800 focus:bg-purple-800 focus:text-white active:bg-purple-800 active:text-white hover:text-white  text-white"
             >
@@ -409,15 +464,20 @@ export default function Accounts() {
           <p className="text-2xl text-white ">Confirmation </p>
           <p className="text-xl my-32">
             Are you sure you wish to unlink Scholar Account lD ({value.sid})
-            from Menmber Account ({value.sid})?
+            from Menmber Account ({value.memberid})?
           </p>
           <div className="px-32 mt-32 flex justify-between">
-            <Button onClick={modalCancel} className="px-12 bg-gray-button hover: text-white rounded-lg hover:bg-gray-800 hover:text-white focus:bg-gray-800 focus:text-white active:bg-gray-800 active:text-white">
+            <Button
+              onClick={modalCancel}
+              className="px-12 bg-gray-button hover: text-white rounded-lg hover:bg-gray-800 hover:text-white focus:bg-gray-800 focus:text-white active:bg-gray-800 active:text-white"
+            >
               Cancel
             </Button>
             <Button
-              onClick={() => {console.log(value);
-               unlinkScholar(value.sid, value.uid)}}
+              onClick={() => {
+                unlinkScholar(value.sid, value.memberid as string);
+              }}
+              loading={loadingStauts.tableLoading}
               className="ml-4 px-12 border-none rounded-lg bg-purple-button hover:bg-purple-800 focus:bg-purple-800 focus:text-white active:bg-purple-800 active:text-white hover:text-white  text-white"
             >
               Confirm
@@ -431,7 +491,6 @@ export default function Accounts() {
           </p>
         </div>,
       );
-      
     }
   };
   const modalClickItem = (
@@ -457,15 +516,24 @@ export default function Accounts() {
     });
   };
   const deleteConfirm = async (sid: string | undefined) => {
+    setLoadingStatus({
+      ...loadingStauts,
+      confirmLoading:true
+    })
     if (sid == undefined) {
       message.warning('The current user does not exist');
       return;
     }
+    try {
     const data = await deleteScholarItem({ sid: sid });
+    setLoadingStatus({
+      ...loadingStauts,
+      confirmLoading:false
+    })
     if (data.code == 1) {
       confirmClick(
         true,
-        <div className='text-center'>
+        <div className="text-center">
           <p className="text-white text-2xl mb-16">success</p>
           <p className="text-gray-500 text-lg mb-100">
             Scholar Account lD ({sid}) has been deleted{' '}
@@ -473,8 +541,15 @@ export default function Accounts() {
           <IconFont className="text-9xl" type={'icon-success'}></IconFont>
         </div>,
       );
-      await getList();
+      const res =  await getList();
+      setList(res)
     }
+  } catch (error) {
+    setLoadingStatus({
+      ...loadingStauts,
+      confirmLoading:false
+    })
+  }
   };
   const deleteItem = (value: DataType) => {
     modalClickItem(
@@ -492,15 +567,19 @@ export default function Accounts() {
           This action cannot be undone and will also unlink any Member Accounts
         </p>
         <div className="px-32 mt-32 flex justify-between">
-          <Button onClick={modalCancel} className="px-12 bg-gray-button hover: text-white rounded-lg hover:bg-gray-800 hover:text-white focus:bg-gray-800 focus:text-white active:bg-gray-800 active:text-white">
+          <Button
+            onClick={modalCancel}
+            className="px-12 bg-gray-button hover: text-white rounded-lg hover:bg-gray-800 hover:text-white focus:bg-gray-800 focus:text-white active:bg-gray-800 active:text-white"
+          >
             Cancel
           </Button>
           <Button
+            loading={loadingStauts.tableLoading}
             onClick={() => deleteConfirm(value.sid)}
             className="ml-4 px-12 border-none rounded-lg bg-purple-button hover:bg-purple-800 focus:bg-purple-800 focus:text-white active:bg-purple-800 active:text-white hover:text-white  text-white"
           >
             Confirm
-          </Button>
+            </Button>
         </div>
       </div>,
       <div>
@@ -521,10 +600,20 @@ export default function Accounts() {
       render: <>{renderChildren}</>,
     });
   };
-  const search = (values: any) => {
-    console.log(values);
+  const search = async (values: any) => {
+    searchData = values;
+    const res = await getList();
+    setList(res);
   };
-
+  const pageChange = async (e: any) => {
+    if (list.length > (e - 1) * 10) {
+      pageNum = e;
+    } else {
+      pageNum = e;
+      const res = await getList();
+      setList(list.concat(res));
+    }
+  };
   const uploadClick = async () => {
     if (fileValue?.type != 'text/csv' || !fileValue) {
       message.error('Upload the CSV file correctly');
@@ -532,54 +621,58 @@ export default function Accounts() {
     }
     try {
       const data = await massUploadFile(fileValue);
-      let res:any
-      if(modalStatus.title == "masscreate"){
-        
-        res = await massCreateScholar({ filename: data.data.file_name })
-      }else if(modalStatus.title=="masslink"){
-        res = await massLinkScholar({ filename: data.data.file_name })
-      }else if(modalStatus.title == "massunlink"){
-        res = await massUnLinkScholar({filename:data.data.file_name})
+      let res: any;
+      if (modalStatus.title == 'masscreate') {
+        res = await massCreateScholar({ filename: data.data.file_name });
+      } else if (modalStatus.title == 'masslink') {
+        res = await massLinkScholar({ filename: data.data.file_name });
+      } else if (modalStatus.title == 'massunlink') {
+        res = await massUnLinkScholar({ filename: data.data.file_name });
       }
-    if (data) {
-      confirmClick(
-        true,
-        <div className="text-center w-full">
-          <p className="text-white text-2xl mb-8">
-            Mass Create Scholar Accounts
-          </p>
-          <p className="text-gray-500 text-lg">
-          Some entries failed to be uploaded. Check file for results.
-          </p>
-          <p className="my-16">
-            <IconFont className="text-6xl" type={'icon-warning'}></IconFont>
-          </p>
-          <p>
-            <Button onClick={()=>{apiDownloadCsv('ErrorMsg',res.data);}} className=" bg-gray-button px-4 hover: text-white rounded-lg hover:bg-gray-800 hover:text-white focus:bg-gray-800 focus:text-white active:bg-gray-800 active:text-white">
-            Download Results
-            </Button>
-          </p>
-        </div>,
-      );
-    } else {
-      confirmClick(
-        true,
-        <div className="text-center w-full">
-          <p className="text-white text-2xl mb-8">
-            Mass Create Scholar Accounts
-          </p>
-          <p className="text-gray-500 text-lg">
-            All X entries were successfully created
-          </p>
-          <p className="my-16">
-            <IconFont className="text-6xl" type={'icon-success'}></IconFont>
-          </p>
-        </div>,
-      );
+      if (data) {
+        confirmClick(
+          true,
+          <div className="text-center w-full">
+            <p className="text-white text-2xl mb-8">
+              Mass Create Scholar Accounts
+            </p>
+            <p className="text-gray-500 text-lg">
+              Some entries failed to be uploaded. Check file for results.
+            </p>
+            <p className="my-16">
+              <IconFont className="text-6xl" type={'icon-warning'}></IconFont>
+            </p>
+            <p>
+              <Button
+                onClick={() => {
+                  apiDownloadCsv('ErrorMsg', res.data);
+                }}
+                className=" bg-gray-button px-4 hover: text-white rounded-lg hover:bg-gray-800 hover:text-white focus:bg-gray-800 focus:text-white active:bg-gray-800 active:text-white"
+              >
+                Download Results
+              </Button>
+            </p>
+          </div>,
+        );
+      } else {
+        confirmClick(
+          true,
+          <div className="text-center w-full">
+            <p className="text-white text-2xl mb-8">
+              Mass Create Scholar Accounts
+            </p>
+            <p className="text-gray-500 text-lg">
+              All X entries were successfully created
+            </p>
+            <p className="my-16">
+              <IconFont className="text-6xl" type={'icon-success'}></IconFont>
+            </p>
+          </div>,
+        );
+      }
+    } catch (error) {
+      message.warning('Upload files according to the template');
     }
-  } catch (error) {
-      message.warning('Upload files according to the template')
-  }
   };
   const modalCancel = async () => {
     setModalStatus({
@@ -587,57 +680,61 @@ export default function Accounts() {
       status: false,
     });
     setStepNum(1);
-    await getList()
+    const res = await getList();
+    setList(res)
   };
-  const downloadTemplate =(type:string) =>{
-    if(type == "masscreate"){
-      apiDownloadCsv('Template',[[
-        "Scholar Name*",
-        "Game*",
-        "Wallet Address*",
-        "Email*",
-        "Email Password*",
-        "User ID",
-      ],[
-        "A",
-        "Axie",
-        "xxx",
-        "xxx",
-        "xxx",
-        ""
-      ]])
-    }else{
-      apiDownloadCsv('Template',[[
-        "Scholar ID",
-        "User ID",
-      ],
-      [
-        "xxx",
-        "xxx",
-      ],])
+  const downloadTemplate = (type: string) => {
+    if (type == 'masscreate') {
+      apiDownloadCsv('Template', [
+        [
+          'Scholar Name*',
+          'Game*',
+          'Wallet Address*',
+          'Email*',
+          'Email Password*',
+          'User ID',
+        ],
+        ['A', 'Axie', 'xxx', 'xxx', 'xxx', ''],
+      ]);
+    } else {
+      apiDownloadCsv('Template', [
+        ['Scholar ID', 'User ID'],
+        ['xxx', 'xxx'],
+      ]);
     }
-  }
+  };
+  const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
+  const onSelectChange = (newSelectedRowKeys: React.Key[]) => {
+    setSelectedRowKeys(newSelectedRowKeys);
+  };
+  const rowSelection = {
+    selectedRowKeys,
+    onChange: onSelectChange,
+  };
+  
   return (
     <div>
       <HeaderBar modalClickItem={modalClickItem}></HeaderBar>
       <SearchBar search={search} searchItem={searchItem} />
-
-      <Table
-        rowClassName={'bg-bar-bg text-white bg-card-bg'}
-        rowKey={'sid'}
-        columns={colums}
-        dataSource={list}
-        scroll={{ x: 1000 }}
-        pagination={{
-          pageSize: 10,
-          itemRender: itemRender,
-          total: pageData.size,
-          onChange: (e) => {
-            pageNum = e;
-            getList();
-          },
-        }}
-      ></Table>
+      <ContentEmpty>
+        <Table
+          loading={loadingStauts.tableLoading}
+          rowClassName={'bg-bar-bg text-white bg-card-bg'}
+          rowKey={'sid'}
+          columns={colums}
+          rowSelection={rowSelection}
+          dataSource={list}
+          scroll={{ x: 1000 }}
+          pagination={{
+            pageSize: 10,
+            itemRender: itemRender,
+            total: pageData.size,
+            onChange: (e) => {
+              pageChange(e);
+            },
+          }}
+        />
+      </ContentEmpty>
       {/* </ContentCard> */}
       <Modal
         visible={modalStatus.status}
@@ -696,7 +793,10 @@ export default function Accounts() {
                   </div>
                 </div>
                 <div className="mx-16 mt-12 flex justify-between">
-                  <Button onClick={()=>downloadTemplate(modalStatus.title)} className=" bg-gray-button px-4 hover: text-white rounded-lg hover:bg-gray-800 hover:text-white focus:bg-gray-800 focus:text-white active:bg-gray-800 active:text-white">
+                  <Button
+                    onClick={() => downloadTemplate(modalStatus.title)}
+                    className=" bg-gray-button px-4 hover: text-white rounded-lg hover:bg-gray-800 hover:text-white focus:bg-gray-800 focus:text-white active:bg-gray-800 active:text-white"
+                  >
                     Download Template
                   </Button>
                   <Button
